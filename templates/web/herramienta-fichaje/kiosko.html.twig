@@ -1,130 +1,197 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Kiosko fichaje{% endblock %}
+{% block title %}Kiosco de fichaje — Fichajes{% endblock %}
 
 {% block body %}
-    <section class="card border-0 shadow-sm">
-        <div class="card-body p-3 p-md-4">
-            <h1 class="h4 mb-3">Kiosko de fichaje</h1>
-
-            <div class="row g-3">
-                <div class="col-lg-4">
-                    <section class="card h-100">
-                        <div class="card-body">
-                            <h2 class="h6 mb-2">Fichar por codigo</h2>
-                            <p class="text-muted small mb-3">Introduce tu codigo y elige accion.</p>
-
-                            <input type="hidden" id="csrfValidarPin" value="{{ csrf_token('herramienta_fichaje_kiosko_validar_pin') }}">
-                            <input type="hidden" id="csrfRapida" value="{{ csrf_token('herramienta_fichaje_kiosko_rapida') }}">
-
-                            <label class="form-label">Codigo</label>
-                            <input class="form-control form-control-lg text-center" id="inputCodigo" autocomplete="off" inputmode="none" required>
-
-                            <div class="row g-2 mt-2">
-                                {% for fila in [[1,2,3],[4,5,6],[7,8,9],['C',0,'⌫']] %}
-                                    {% for tecla in fila %}
-                                        <div class="col-4 d-grid">
-                                            {% if tecla is same as('C') %}
-                                                <button type="button" class="btn btn-outline-secondary btn-lg py-3 tecla-kiosko" data-op="clear">C</button>
-                                            {% elseif tecla is same as('⌫') %}
-                                                <button type="button" class="btn btn-outline-secondary btn-lg py-3 tecla-kiosko" data-op="back">⌫</button>
-                                            {% else %}
-                                                <button type="button" class="btn btn-outline-primary btn-lg py-3 tecla-kiosko" data-numero="{{ tecla }}">{{ tecla }}</button>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                {% endfor %}
-                            </div>
-                            <button type="button" class="btn btn-primary btn-lg w-100 mt-3" id="btnValidarPin">Validar codigo</button>
-                        </div>
-                    </section>
-                </div>
-
-                <div class="col-lg-8">
-                    <section class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
-                                <h2 class="h6 mb-0">Trabajadores del tenant</h2>
-                                <form method="get" class="d-flex gap-2">
-                                    <input class="form-control form-control-sm" name="q" value="{{ q }}" placeholder="Buscar trabajador">
-                                    <button class="btn btn-sm btn-outline-secondary">Buscar</button>
-                                </form>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-sm align-middle">
-                                    <thead><tr><th>Trabajador</th><th>Estado</th><th>Acciones</th></tr></thead>
-                                    <tbody>
-                                    {% for fila in trabajadoresKiosko %}
-                                        <tr>
-                                            <td><strong>{{ fila.trabajador.trabajadorId }}</strong> - {{ fila.trabajador.nombre }}</td>
-                                            <td><span class="badge text-bg-secondary">{{ fila.estado|replace({'_': ' '}) }}</span></td>
-                                            <td>
-                                                <div class="d-flex flex-wrap gap-1">
-                                                    {% for accion in fila.acciones %}
-                                                        {% set etiqueta = accion == 'iniciar_nuevo' ? 'Iniciar jornada' : (accion == 'pausa' ? 'Pausar' : (accion == 'reanudar' ? 'Reanudar' : 'Finalizar')) %}
-                                                        {% set clase = accion == 'iniciar_nuevo' ? 'btn-primary' : (accion == 'pausa' ? 'btn-warning' : (accion == 'reanudar' ? 'btn-success' : 'btn-danger')) %}
-                                                        <button type="button" class="btn btn-sm {{ clase }} btn-accion-rapida"
-                                                                data-trabajador-id="{{ fila.trabajador.trabajadorId }}"
-                                                                data-trabajador-nombre="{{ fila.trabajador.nombre }}"
-                                                                data-accion="{{ accion }}"
-                                                                data-etiqueta="{{ etiqueta }}"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#modalAccionRapida">{{ etiqueta }}</button>
-                                                    {% endfor %}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% else %}
-                                        <tr><td colspan="3" class="text-muted">No hay trabajadores para mostrar.</td></tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
+<div class="page-header d-print-none pt-3 pb-2">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle text-secondary">Operativa</div>
+            <h2 class="page-title"><i class="ti ti-device-tablet me-2"></i>Kiosco de fichaje</h2>
         </div>
-    </section>
+    </div>
+</div>
 
-    <div class="modal fade" id="modalAccionRapida" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form method="post" action="{{ path('web_herramienta_fichaje_kiosko_rapida') }}">
-                    <div class="modal-header"><h5 class="modal-title">Confirmar accion</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                    <div class="modal-body">
-                        <input type="hidden" name="_token" id="modalTokenRapida" value="{{ csrf_token('herramienta_fichaje_kiosko_rapida') }}">
-                        <input type="hidden" name="trabajadorId" id="modalTrabajadorId">
-                        <input type="hidden" name="accion" id="modalAccion">
-                        <p class="mb-2">Trabajador: <strong id="modalTrabajadorNombre"></strong></p>
-                        <p class="mb-3">Accion: <strong id="modalAccionEtiqueta"></strong></p>
-                        <label class="form-label">Codigo de fichaje</label>
-                        <input class="form-control" type="password" name="claveAcceso" autocomplete="off" required>
-                    </div>
-                    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary">Confirmar</button></div>
-                </form>
+<div class="row g-3">
+
+    {# ── Columna izquierda: teclado numérico ── #}
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title mb-0"><i class="ti ti-keyboard me-2 text-secondary"></i>Fichar por código</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-secondary small mb-3">Introduce tu código y elige la acción a realizar.</p>
+
+                <input type="hidden" id="csrfValidarPin" value="{{ csrf_token('herramienta_fichaje_kiosko_validar_pin') }}">
+                <input type="hidden" id="csrfRapida" value="{{ csrf_token('herramienta_fichaje_kiosko_rapida') }}">
+
+                <label class="form-label fw-medium">Código</label>
+                <input class="form-control form-control-lg text-center font-monospace mb-3"
+                       id="inputCodigo" autocomplete="off" inputmode="none"
+                       placeholder="——" required>
+
+                <div class="row g-2 mb-3">
+                    {% for fila in [[1,2,3],[4,5,6],[7,8,9],['C',0,'⌫']] %}
+                        {% for tecla in fila %}
+                            <div class="col-4 d-grid">
+                                {% if tecla is same as('C') %}
+                                    <button type="button"
+                                            class="btn btn-outline-secondary btn-lg py-3 fw-semibold tecla-kiosko"
+                                            data-op="clear">C</button>
+                                {% elseif tecla is same as('⌫') %}
+                                    <button type="button"
+                                            class="btn btn-outline-secondary btn-lg py-3 tecla-kiosko"
+                                            data-op="back">⌫</button>
+                                {% else %}
+                                    <button type="button"
+                                            class="btn btn-outline-primary btn-lg py-3 fw-semibold tecla-kiosko"
+                                            data-numero="{{ tecla }}">{{ tecla }}</button>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+
+                <button type="button" class="btn btn-primary btn-lg w-100" id="btnValidarPin">
+                    <i class="ti ti-login me-2"></i>Validar código
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="modalAccionPin" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form method="post" action="{{ path('web_herramienta_fichaje_kiosko_rapida') }}" id="formAccionPin">
-                    <div class="modal-header"><h5 class="modal-title">Selecciona accion</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                    <div class="modal-body">
-                        <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_kiosko_rapida') }}">
-                        <input type="hidden" name="trabajadorId" id="pinTrabajadorId">
-                        <input type="hidden" name="claveAcceso" id="pinCodigoEnviado">
-                        <input type="hidden" name="accion" id="pinAccionElegida">
-                        <p class="mb-2">Trabajador: <strong id="pinTrabajadorNombre"></strong></p>
-                        <div class="d-flex flex-wrap gap-2" id="pinAcciones"></div>
-                    </div>
+    {# ── Columna derecha: listado de trabajadores ── #}
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h3 class="card-title mb-0"><i class="ti ti-users me-2 text-secondary"></i>Trabajadores del tenant</h3>
+                <form method="get" class="d-flex gap-2">
+                    <input class="form-control form-control-sm" name="q" value="{{ q }}" placeholder="Buscar trabajador…">
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="ti ti-search"></i>
+                    </button>
                 </form>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr>
+                            <th>Trabajador</th>
+                            <th style="width:130px;">Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for fila in trabajadoresKiosko %}
+                        <tr>
+                            <td>
+                                <span class="fw-medium">{{ fila.trabajador.trabajadorId }}</span>
+                                <span class="text-secondary ms-1">{{ fila.trabajador.nombre }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-lt text-secondary">
+                                    {{ fila.estado|replace({'_': ' '}) }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% for accion in fila.acciones %}
+                                        {% set etiqueta = accion == 'iniciar_nuevo' ? 'Iniciar jornada'
+                                            : (accion == 'pausa' ? 'Pausar'
+                                            : (accion == 'reanudar' ? 'Reanudar' : 'Finalizar')) %}
+                                        {% set clase = accion == 'iniciar_nuevo' ? 'btn-primary'
+                                            : (accion == 'pausa' ? 'btn-warning'
+                                            : (accion == 'reanudar' ? 'btn-success' : 'btn-danger')) %}
+                                        <button type="button"
+                                                class="btn btn-sm {{ clase }} btn-accion-rapida"
+                                                data-trabajador-id="{{ fila.trabajador.trabajadorId }}"
+                                                data-trabajador-nombre="{{ fila.trabajador.nombre }}"
+                                                data-accion="{{ accion }}"
+                                                data-etiqueta="{{ etiqueta }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalAccionRapida">
+                                            {{ etiqueta }}
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-secondary py-4">
+                                <i class="ti ti-users-off fs-2 d-block mb-2"></i>No hay trabajadores para mostrar.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+
+</div>
+
+{# ── Modal: acción rápida desde tabla ── #}
+<div class="modal fade" id="modalAccionRapida" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="{{ path('web_herramienta_fichaje_kiosko_rapida') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="ti ti-shield-check me-2"></i>Confirmar acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body vstack gap-3">
+                    <input type="hidden" name="_token" id="modalTokenRapida"
+                           value="{{ csrf_token('herramienta_fichaje_kiosko_rapida') }}">
+                    <input type="hidden" name="trabajadorId" id="modalTrabajadorId">
+                    <input type="hidden" name="accion" id="modalAccion">
+                    <div class="text-secondary">
+                        Trabajador: <strong id="modalTrabajadorNombre" class="text-body"></strong>
+                    </div>
+                    <div class="text-secondary">
+                        Acción: <strong id="modalAccionEtiqueta" class="text-body"></strong>
+                    </div>
+                    <div>
+                        <label class="form-label">Código de fichaje</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ti ti-lock"></i></span>
+                            <input class="form-control" type="password" name="claveAcceso"
+                                   autocomplete="off" placeholder="••••" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary"><i class="ti ti-check me-1"></i>Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# ── Modal: selección de acción tras validar PIN ── #}
+<div class="modal fade" id="modalAccionPin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="{{ path('web_herramienta_fichaje_kiosko_rapida') }}" id="formAccionPin">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="ti ti-player-play me-2"></i>Selecciona acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body vstack gap-3">
+                    <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_kiosko_rapida') }}">
+                    <input type="hidden" name="trabajadorId" id="pinTrabajadorId">
+                    <input type="hidden" name="claveAcceso" id="pinCodigoEnviado">
+                    <input type="hidden" name="accion" id="pinAccionElegida">
+                    <div class="text-secondary">
+                        Trabajador: <strong id="pinTrabajadorNombre" class="text-body"></strong>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2" id="pinAcciones"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
@@ -142,7 +209,7 @@
                     const op = btn.dataset.op;
                     if (op === 'clear') inputCodigo.value = '';
                     else if (op === 'back') inputCodigo.value = inputCodigo.value.slice(0, -1);
-                    else if (btn.dataset.numero) inputCodigo.value += btn.dataset.numero;
+                    else if (btn.dataset.numero !== undefined) inputCodigo.value += btn.dataset.numero;
                 });
             });
 
@@ -152,7 +219,7 @@
                     const b = event.relatedTarget; if (!b) return;
                     document.getElementById('modalTrabajadorId').value = b.dataset.trabajadorId || '';
                     document.getElementById('modalAccion').value = b.dataset.accion || '';
-                    document.getElementById('modalTrabajadorNombre').textContent = `${b.dataset.trabajadorId || ''} - ${b.dataset.trabajadorNombre || ''}`;
+                    document.getElementById('modalTrabajadorNombre').textContent = `${b.dataset.trabajadorId || ''} — ${b.dataset.trabajadorNombre || ''}`;
                     document.getElementById('modalAccionEtiqueta').textContent = b.dataset.etiqueta || '';
                 });
             }
@@ -170,7 +237,7 @@
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                         body: data.toString()
                     });
-                    const json = await resp.json().catch(() => ({ok:false,mensaje:'Error de validacion'}));
+                    const json = await resp.json().catch(() => ({ok:false,mensaje:'Error de validación'}));
                     if (!json.ok) {
                         window.location.reload();
                         return;
@@ -178,13 +245,23 @@
                     const accionesCont = document.getElementById('pinAcciones');
                     accionesCont.innerHTML = '';
                     document.getElementById('pinTrabajadorId').value = json.trabajadorId;
-                    document.getElementById('pinTrabajadorNombre').textContent = `${json.trabajadorId} - ${json.trabajadorNombre}`;
+                    document.getElementById('pinTrabajadorNombre').textContent = `${json.trabajadorId} — ${json.trabajadorNombre}`;
                     document.getElementById('pinCodigoEnviado').value = codigo;
                     json.acciones.forEach(acc => {
                         const btn = document.createElement('button');
                         btn.type = 'button';
-                        btn.className = 'btn ' + (acc === 'iniciar_nuevo' ? 'btn-primary' : (acc === 'pausa' ? 'btn-warning' : (acc === 'reanudar' ? 'btn-success' : 'btn-danger')));
-                        btn.textContent = acc === 'iniciar_nuevo' ? 'Iniciar jornada' : (acc === 'pausa' ? 'Pausar' : (acc === 'reanudar' ? 'Reanudar' : 'Finalizar'));
+                        const clases = {
+                            iniciar_nuevo: 'btn btn-primary',
+                            pausa: 'btn btn-warning',
+                            reanudar: 'btn btn-success',
+                        };
+                        btn.className = clases[acc] || 'btn btn-danger';
+                        const etiquetas = {
+                            iniciar_nuevo: 'Iniciar jornada',
+                            pausa: 'Pausar',
+                            reanudar: 'Reanudar',
+                        };
+                        btn.textContent = etiquetas[acc] || 'Finalizar';
                         btn.addEventListener('click', () => {
                             document.getElementById('pinAccionElegida').value = acc;
                             document.getElementById('formAccionPin').submit();

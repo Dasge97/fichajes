@@ -1,50 +1,155 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Panel operativo{% endblock %}
+{% block title %}Panel operativo — Fichajes{% endblock %}
 
 {% block body %}
-    <h1 class="h3 mb-3">Panel operativo</h1>
-    <p class="text-muted">Resumen diario, estados y agenda de los proximos dias.</p>
-
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-xl-2"><div class="card"><div class="card-body"><div class="small text-muted">Fichajes hoy</div><div class="h4 mb-0">{{ kpis.fichajesHoy }}</div></div></div></div>
-        <div class="col-6 col-xl-2"><div class="card"><div class="card-body"><div class="small text-muted">Fuera horario</div><div class="h4 mb-0 text-warning">{{ kpis.fueraHorarioHoy }}</div></div></div></div>
-        <div class="col-6 col-xl-2"><div class="card"><div class="card-body"><div class="small text-muted">Ausencias activas</div><div class="h4 mb-0">{{ kpis.ausenciasActivas }}</div></div></div></div>
-        <div class="col-6 col-xl-3"><div class="card"><div class="card-body"><div class="small text-muted">Correcciones pendientes</div><div class="h4 mb-0 text-danger">{{ kpis.correccionesPendientes }}</div></div></div></div>
-        <div class="col-12 col-xl-3"><div class="card"><div class="card-body"><div class="small text-muted">Horarios asignados vigentes</div><div class="h4 mb-0">{{ kpis.horariosAsignados }}</div></div></div></div>
-        <div class="col-12 col-xl-3"><div class="card"><div class="card-body"><div class="small text-muted">Trabajadores activos</div><div class="h4 mb-0">{{ kpis.trabajadoresActivos }}</div></div></div></div>
+<div class="page-header d-print-none pt-3 pb-2">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle text-secondary">Resumen del día</div>
+            <h2 class="page-title">Panel operativo</h2>
+        </div>
     </div>
+</div>
 
-    <div class="row g-3 mt-1">
-        <div class="col-lg-6">
-            <div class="card h-100"><div class="card-body">
-                <h2 class="h6 mb-3">Actividad reciente</h2>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-4 col-xl-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="avatar bg-blue text-white"><i class="ti ti-clock-hour-3"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold fs-3">{{ kpis.fichajesHoy }}</div>
+                        <div class="text-secondary small">Fichajes hoy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4 col-xl-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="avatar bg-yellow text-white"><i class="ti ti-alert-triangle"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold fs-3 text-yellow">{{ kpis.fueraHorarioHoy }}</div>
+                        <div class="text-secondary small">Fuera horario</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4 col-xl-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="avatar bg-teal text-white"><i class="ti ti-beach"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold fs-3">{{ kpis.ausenciasActivas }}</div>
+                        <div class="text-secondary small">Ausencias activas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4 col-xl-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="avatar bg-red text-white"><i class="ti ti-pencil"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold fs-3 text-danger">{{ kpis.correccionesPendientes }}</div>
+                        <div class="text-secondary small">Correcciones pend.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4 col-xl-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="avatar bg-green text-white"><i class="ti ti-calendar-check"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold fs-3">{{ kpis.horariosAsignados }}</div>
+                        <div class="text-secondary small">Horarios vigentes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4 col-xl-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="avatar bg-purple text-white"><i class="ti ti-users"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold fs-3">{{ kpis.trabajadoresActivos }}</div>
+                        <div class="text-secondary small">Trabajadores activos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-activity me-2 text-secondary"></i>Actividad reciente</h3>
+            </div>
+            <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
                     {% for item in actividadReciente %}
-                        <li class="list-group-item d-flex justify-content-between px-0">
-                            <span><span class="badge text-bg-dark me-2">{{ item.accion }}</span></span>
-                            <small class="text-muted">{{ item.creadoEn }}</small>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-3">
+                            <span class="badge bg-dark text-white">{{ item.accion }}</span>
+                            <small class="text-secondary">{{ item.creadoEn }}</small>
                         </li>
                     {% else %}
-                        <li class="list-group-item px-0 text-muted">Sin actividad reciente.</li>
-                    {% endfor %}
-                </ul>
-            </div></div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card h-100"><div class="card-body">
-                <h2 class="h6 mb-3">Agenda proxima (14 dias)</h2>
-                <ul class="list-group list-group-flush">
-                    {% for item in agendaProxima %}
-                        <li class="list-group-item px-0 d-flex justify-content-between">
-                            <span>{{ item.empleadoId }} <span class="badge text-bg-secondary ms-1">{{ item.tipo }}</span></span>
-                            <small class="text-muted">{{ item.inicio }} - {{ item.fin }}</small>
+                        <li class="list-group-item text-secondary px-3 py-3">
+                            <i class="ti ti-mood-empty me-2"></i>Sin actividad reciente.
                         </li>
-                    {% else %}
-                        <li class="list-group-item px-0 text-muted">Sin eventos futuros.</li>
                     {% endfor %}
                 </ul>
-            </div></div>
+            </div>
         </div>
     </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-calendar-time me-2 text-secondary"></i>Agenda próxima (14 días)</h3>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for item in agendaProxima %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-3">
+                            <span>
+                                <strong>{{ item.empleadoId }}</strong>
+                                <span class="badge bg-secondary-lt text-secondary ms-2">{{ item.tipo }}</span>
+                            </span>
+                            <small class="text-secondary">{{ item.inicio }} — {{ item.fin }}</small>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item text-secondary px-3 py-3">
+                            <i class="ti ti-calendar-off me-2"></i>Sin eventos futuros.
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

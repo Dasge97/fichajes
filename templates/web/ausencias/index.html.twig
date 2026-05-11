@@ -1,62 +1,119 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ausencias{% endblock %}
+{% block title %}Ausencias — Fichajes{% endblock %}
 
 {% block body %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h4 mb-0">Ausencias</h1>
-        <a class="btn btn-primary" href="{{ path('web_ausencias_nueva') }}">Añadir ausencia</a>
+<div class="page-header d-print-none pt-3 pb-2">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle text-secondary">Gestión</div>
+            <h2 class="page-title"><i class="ti ti-beach me-2"></i>Ausencias</h2>
+        </div>
+        <div class="col-auto ms-auto">
+            <a class="btn btn-primary" href="{{ path('web_ausencias_nueva') }}">
+                <i class="ti ti-plus me-1"></i>Añadir ausencia
+            </a>
+        </div>
     </div>
+</div>
 
-    <section class="card mb-4"><div class="card-body">
-    <h2 class="h6 mb-3">Buscar solicitudes</h2>
-    <form method="get" class="row g-2 mb-0">
-        <div class="col-md-4"><input class="form-control" name="empleadoId" value="{{ filtroEmpleado }}" placeholder="Filtrar por empleado"></div>
-        <div class="col-md-3">
-            <select class="form-select" name="estado">
-                <option value="" {{ filtros.estado == '' ? 'selected' : '' }}>Todos los estados</option>
-                <option value="pendiente" {{ filtros.estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                <option value="aprobada" {{ filtros.estado == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
-                <option value="rechazada" {{ filtros.estado == 'rechazada' ? 'selected' : '' }}>Rechazada</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
-        </div>
-        <input type="hidden" name="pagina" value="1">
-        <div class="col-md-3 d-flex gap-2"><button class="btn btn-outline-secondary w-100">Filtrar</button><a class="btn btn-outline-secondary" href="{{ path('web_ausencias_index') }}">Limpiar</a></div>
-    </form>
-    </div></section>
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title mb-0"><i class="ti ti-filter me-2 text-secondary"></i>Buscar solicitudes</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <input class="form-control" name="empleadoId" value="{{ filtroEmpleado }}"
+                       placeholder="Filtrar por empleado">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="estado">
+                    <option value="" {{ filtros.estado == '' ? 'selected' : '' }}>Todos los estados</option>
+                    <option value="pendiente" {{ filtros.estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="aprobada" {{ filtros.estado == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
+                    <option value="rechazada" {{ filtros.estado == 'rechazada' ? 'selected' : '' }}>Rechazada</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
+            </div>
+            <input type="hidden" name="pagina" value="1">
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Filtrar</button>
+                <a class="btn btn-outline-secondary" href="{{ path('web_ausencias_index') }}"><i class="ti ti-x"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
 
-    <section>
-    <h2 class="h6 mb-2">Solicitudes registradas</h2>
-    <table class="table table-striped align-middle">
-        <thead><tr><th>Empleado</th><th>Tipo</th><th>Periodo</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
-        <tbody>
-        {% for item in items %}
-            <tr>
-                <td>{{ item.empleadoId }}</td>
-                <td>{{ item.tipo }}</td>
-                <td>{{ item.fechaInicio }} - {{ item.fechaFin }}</td>
-                <td><span class="badge text-bg-{{ item.estado == 'aprobada' ? 'success' : (item.estado == 'rechazada' ? 'danger' : 'secondary') }}">{{ item.estado }}</span></td>
-                <td class="text-end" style="white-space: nowrap; width: 1%;">
-                    {% if is_granted('ROLE_SUPERVISOR') and item.estado == 'pendiente' %}
-                        <form method="post" action="{{ path('web_ausencias_aprobar', {id: item.id}) }}" class="d-inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('ausencia_aprobar_' ~ item.id) }}"><button class="btn btn-sm btn-outline-success">Aprobar</button>
-                        </form>
-                        <form method="post" action="{{ path('web_ausencias_rechazar', {id: item.id}) }}" class="d-inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('ausencia_rechazar_' ~ item.id) }}"><button class="btn btn-sm btn-outline-danger">Rechazar</button>
-                        </form>
-                    {% else %}
-                        <span class="text-muted">-</span>
-                    {% endif %}
-                </td>
-            </tr>
-        {% else %}
-            <tr><td colspan="5" class="text-muted">Sin solicitudes.</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% include 'web/_paginacion.html.twig' with {ruta: 'web_ausencias_index', query: {empleadoId: filtroEmpleado, estado: filtros.estado, tamano: filtros.tamano}, paginacion: paginacion} %}
-    </section>
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title mb-0">Solicitudes registradas</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>Tipo</th>
+                    <th>Periodo</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr>
+                    <td class="fw-medium">{{ item.empleadoId }}</td>
+                    <td>
+                        <span class="badge bg-azure-lt text-azure">{{ item.tipo }}</span>
+                    </td>
+                    <td class="text-secondary">
+                        <i class="ti ti-calendar me-1"></i>{{ item.fechaInicio }}
+                        <span class="mx-1">→</span>
+                        {{ item.fechaFin }}
+                    </td>
+                    <td>
+                        {% if item.estado == 'aprobada' %}
+                            <span class="badge bg-success-lt text-success"><i class="ti ti-circle-check me-1"></i>Aprobada</span>
+                        {% elseif item.estado == 'rechazada' %}
+                            <span class="badge bg-danger-lt text-danger"><i class="ti ti-circle-x me-1"></i>Rechazada</span>
+                        {% else %}
+                            <span class="badge bg-warning-lt text-warning"><i class="ti ti-clock me-1"></i>Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end" style="white-space:nowrap;">
+                        {% if is_granted('ROLE_SUPERVISOR') and item.estado == 'pendiente' %}
+                            <form method="post" action="{{ path('web_ausencias_aprobar', {id: item.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('ausencia_aprobar_' ~ item.id) }}">
+                                <button class="btn btn-sm btn-success">
+                                    <i class="ti ti-check me-1"></i>Aprobar
+                                </button>
+                            </form>
+                            <form method="post" action="{{ path('web_ausencias_rechazar', {id: item.id}) }}" class="d-inline ms-1">
+                                <input type="hidden" name="_token" value="{{ csrf_token('ausencia_rechazar_' ~ item.id) }}">
+                                <button class="btn btn-sm btn-danger">
+                                    <i class="ti ti-x me-1"></i>Rechazar
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="text-secondary">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-secondary py-4">
+                        <i class="ti ti-beach fs-2 d-block mb-2"></i>Sin solicitudes de ausencia.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer d-flex justify-content-end">
+        {% include 'web/_paginacion.html.twig' with {ruta: 'web_ausencias_index', query: {empleadoId: filtroEmpleado, estado: filtros.estado, tamano: filtros.tamano}, paginacion: paginacion} %}
+    </div>
+</div>
 {% endblock %}

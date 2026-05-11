@@ -1,57 +1,130 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Herramienta de fichaje{% endblock %}
+{% block title %}Herramienta de fichaje — Fichajes{% endblock %}
 
 {% block body %}
-    <h1 class="h4 mb-3">Herramienta de fichaje</h1>
+<div class="page-header d-print-none pt-3 pb-2">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle text-secondary">Operativa</div>
+            <h2 class="page-title"><i class="ti ti-fingerprint me-2"></i>Herramienta de fichaje</h2>
+        </div>
+    </div>
+</div>
 
-    {% if trabajador is null %}
-        <section class="card">
-            <div class="card-body">
-                <h2 class="h6 mb-3">Identificacion del trabajador</h2>
-                <form method="post" action="{{ path('web_herramienta_fichaje_iniciar') }}" class="row g-2">
-                    <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_iniciar') }}">
-                    <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
-                    <div class="col-md-4"><input class="form-control" name="trabajadorId" placeholder="Codigo trabajador" required></div>
-                    <div class="col-md-4"><input class="form-control" type="password" name="claveAcceso" placeholder="Clave de fichaje" required></div>
-                    <div class="col-md-4"><button class="btn btn-primary w-100">Iniciar fichaje</button></div>
-                </form>
-            </div>
-        </section>
-    {% else %}
-        <section class="card mb-3">
-            <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <div>
-                    <h2 class="h6 mb-1">{{ trabajador.trabajadorId }} - {{ trabajador.nombre }}</h2>
-                    <span class="badge text-bg-secondary">Estado: {{ estado|replace({'_': ' '}) }}</span>
+{% if trabajador is null %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="ti ti-id-badge me-2 text-secondary"></i>Identificación del trabajador
+                    </h3>
                 </div>
-                <form method="post" action="{{ path('web_herramienta_fichaje_cerrar') }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_cerrar') }}">
-                    <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
-                    <button class="btn btn-outline-secondary">Cambiar trabajador</button>
-                </form>
+                <div class="card-body">
+                    <form method="post" action="{{ path('web_herramienta_fichaje_iniciar') }}" class="vstack gap-3">
+                        <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_iniciar') }}">
+                        <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
+                        <div>
+                            <label class="form-label">Código de trabajador</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ti ti-user"></i></span>
+                                <input class="form-control form-control-lg" name="trabajadorId"
+                                       placeholder="EMP-001" required autofocus>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Clave de fichaje</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ti ti-lock"></i></span>
+                                <input class="form-control form-control-lg" type="password"
+                                       name="claveAcceso" placeholder="••••" required>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-lg">
+                            <i class="ti ti-login me-2"></i>Iniciar fichaje
+                        </button>
+                    </form>
+                </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <section class="card">
-            <div class="card-body">
-                <h2 class="h6 mb-3">Acciones disponibles</h2>
-                <form method="post" action="{{ path('web_herramienta_fichaje_accion') }}" class="d-flex flex-wrap gap-2">
-                    <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_accion') }}">
-                    <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
-                    {% if estado == 'en_jornada' %}
-                        <button class="btn btn-warning" name="accion" value="pausa">Pausar</button>
-                        <button class="btn btn-danger" name="accion" value="finalizar">Finalizar fichaje</button>
-                    {% elseif estado == 'en_pausa' %}
-                        <button class="btn btn-success" name="accion" value="reanudar">Reanudar</button>
-                        <button class="btn btn-danger" name="accion" value="finalizar">Finalizar fichaje</button>
-                    {% elseif estado == 'finalizada' %}
-                        <button class="btn btn-primary" name="accion" value="iniciar_nuevo">Iniciar nueva jornada</button>
-                    {% else %}
-                        <span class="text-muted">No hay jornada activa para hoy.</span>
-                    {% endif %}
-                </form>
+{% else %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="avatar avatar-lg bg-blue text-white fs-4">
+                                {{ trabajador.nombre|first|upper }}
+                            </span>
+                            <div>
+                                <div class="fw-bold fs-5">{{ trabajador.nombre }}</div>
+                                <div class="text-secondary small">
+                                    <code>{{ trabajador.trabajadorId }}</code>
+                                    <span class="badge bg-secondary-lt text-secondary ms-2">
+                                        {{ estado|replace({'_': ' '}) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <form method="post" action="{{ path('web_herramienta_fichaje_cerrar') }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_cerrar') }}">
+                            <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
+                            <button class="btn btn-outline-secondary btn-sm">
+                                <i class="ti ti-switch-2 me-1"></i>Cambiar trabajador
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </section>
-    {% endif %}
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="ti ti-player-play me-2 text-secondary"></i>Acciones disponibles
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ path('web_herramienta_fichaje_accion') }}"
+                          class="d-flex flex-wrap gap-2">
+                        <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_accion') }}">
+                        <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
+
+                        {% if estado == 'en_jornada' %}
+                            <button class="btn btn-warning btn-lg" name="accion" value="pausa">
+                                <i class="ti ti-player-pause me-2"></i>Pausar
+                            </button>
+                            <button class="btn btn-danger btn-lg" name="accion" value="finalizar">
+                                <i class="ti ti-logout me-2"></i>Finalizar jornada
+                            </button>
+                        {% elseif estado == 'en_pausa' %}
+                            <button class="btn btn-success btn-lg" name="accion" value="reanudar">
+                                <i class="ti ti-player-play me-2"></i>Reanudar
+                            </button>
+                            <button class="btn btn-danger btn-lg" name="accion" value="finalizar">
+                                <i class="ti ti-logout me-2"></i>Finalizar jornada
+                            </button>
+                        {% elseif estado == 'finalizada' %}
+                            <button class="btn btn-primary btn-lg" name="accion" value="iniciar_nuevo">
+                                <i class="ti ti-login me-2"></i>Iniciar nueva jornada
+                            </button>
+                        {% else %}
+                            <div class="text-secondary">
+                                <i class="ti ti-info-circle me-2"></i>No hay jornada activa para hoy.
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endif %}
 {% endblock %}

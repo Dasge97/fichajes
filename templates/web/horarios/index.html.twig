@@ -1,22 +1,36 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Horarios{% endblock %}
+{% block title %}Horarios — Fichajes{% endblock %}
 
 {% block body %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h4 mb-0">Horarios</h1>
+<div class="page-header d-print-none pt-3 pb-2">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle text-secondary">Gestión</div>
+            <h2 class="page-title"><i class="ti ti-calendar-event me-2"></i>Horarios</h2>
+        </div>
         {% if is_granted('ROLE_SUPERVISOR') %}
-            <div class="d-flex gap-2">
-                <a class="btn btn-primary" href="{{ path('web_horarios_nuevo') }}">Añadir horario</a>
-                <a class="btn btn-outline-primary" href="{{ path('web_horarios_asignacion_nueva') }}">Asignar horario</a>
+            <div class="col-auto ms-auto d-flex gap-2">
+                <a class="btn btn-primary" href="{{ path('web_horarios_nuevo') }}">
+                    <i class="ti ti-plus me-1"></i>Añadir horario
+                </a>
+                <a class="btn btn-outline-primary" href="{{ path('web_horarios_asignacion_nueva') }}">
+                    <i class="ti ti-user-check me-1"></i>Asignar horario
+                </a>
             </div>
         {% endif %}
     </div>
+</div>
 
-    <section class="card mb-3"><div class="card-body">
-        <h2 class="h6 mb-3">Filtros de horarios</h2>
-        <form method="get" class="row g-2">
-            <div class="col-md-8"><input class="form-control" name="q" value="{{ filtros.q }}" placeholder="Buscar por id o nombre"></div>
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title mb-0"><i class="ti ti-filter me-2 text-secondary"></i>Filtros de horarios</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-8">
+                <input class="form-control" name="q" value="{{ filtros.q }}" placeholder="Buscar por ID o nombre">
+            </div>
             <div class="col-md-2">
                 {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
             </div>
@@ -24,36 +38,72 @@
             <input type="hidden" name="qAsig" value="{{ filtrosAsig.qAsig }}">
             <input type="hidden" name="tamanoAsig" value="{{ filtrosAsig.tamanoAsig }}">
             <input type="hidden" name="paginaAsig" value="{{ paginacionAsig.paginaAsig }}">
-            <div class="col-md-2 d-flex gap-2"><button class="btn btn-outline-secondary w-100">Filtrar</button><a class="btn btn-outline-secondary" href="{{ path('web_horarios_index') }}">Limpiar</a></div>
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Filtrar</button>
+                <a class="btn btn-outline-secondary" href="{{ path('web_horarios_index') }}"><i class="ti ti-x"></i></a>
+            </div>
         </form>
-    </div></section>
+    </div>
+</div>
 
-    <section class="mb-4">
-        <h2 class="h6 mb-2">Catálogo de horarios</h2>
-        <div class="table-responsive">
-        <table class="table table-striped">
-            <thead><tr><th>ID</th><th>Nombre</th><th>Tramos</th><th class="text-end">Acciones</th></tr></thead>
+<div class="card mb-4">
+    <div class="card-header">
+        <h3 class="card-title mb-0">Catálogo de horarios</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th style="width:120px;">ID</th>
+                    <th>Nombre</th>
+                    <th>Tramos</th>
+                    <th class="text-end" style="width:100px;">Acciones</th>
+                </tr>
+            </thead>
             <tbody>
             {% for h in horarios %}
                 <tr>
-                    <td><code>{{ h.id }}</code></td>
-                    <td>{{ h.nombre }}</td>
-                    <td><code>{{ h.tramos|slice(0, 80) }}</code></td>
-                    <td class="text-end" style="white-space: nowrap; width: 1%;">{% if is_granted('ROLE_SUPERVISOR') %}<a class="btn btn-sm btn-outline-primary" href="{{ path('web_horarios_editar_form', {id: h.id}) }}">Editar</a>{% else %}<span class="text-muted">Solo supervisor</span>{% endif %}</td>
+                    <td><code class="text-muted">{{ h.id }}</code></td>
+                    <td class="fw-medium">{{ h.nombre }}</td>
+                    <td><code class="text-secondary small">{{ h.tramos|slice(0, 80) }}{% if h.tramos|length > 80 %}…{% endif %}</code></td>
+                    <td class="text-end">
+                        {% if is_granted('ROLE_SUPERVISOR') %}
+                            <a class="btn btn-sm btn-outline-primary" href="{{ path('web_horarios_editar_form', {id: h.id}) }}">
+                                <i class="ti ti-pencil me-1"></i>Editar
+                            </a>
+                        {% else %}
+                            <span class="text-secondary small">Solo supervisor</span>
+                        {% endif %}
+                    </td>
                 </tr>
             {% else %}
-                <tr><td colspan="4" class="text-muted">No hay horarios.</td></tr>
+                <tr>
+                    <td colspan="4" class="text-center text-secondary py-4">
+                        <i class="ti ti-calendar-off fs-2 d-block mb-2"></i>No hay horarios.
+                    </td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>
-        </div>
-        {% include 'web/_paginacion.html.twig' with {ruta: 'web_horarios_index', query: {q: filtros.q, tamano: filtros.tamano, qAsig: filtrosAsig.qAsig, tamanoAsig: filtrosAsig.tamanoAsig, paginaAsig: paginacionAsig.paginaAsig}, paginacion: {pagina: paginacion.pagina, totalPaginas: paginacion.totalPaginas}} %}
-    </section>
+    </div>
+    <div class="card-footer d-flex justify-content-end">
+        {% include 'web/_paginacion.html.twig' with {
+            ruta: 'web_horarios_index',
+            query: {q: filtros.q, tamano: filtros.tamano, qAsig: filtrosAsig.qAsig, tamanoAsig: filtrosAsig.tamanoAsig, paginaAsig: paginacionAsig.paginaAsig},
+            paginacion: {pagina: paginacion.pagina, totalPaginas: paginacion.totalPaginas}
+        } %}
+    </div>
+</div>
 
-    <section class="card"><div class="card-body">
-        <h2 class="h6 mb-3">Asignaciones recientes</h2>
-        <form method="get" class="row g-2 mb-3">
-            <div class="col-md-8"><input class="form-control" name="qAsig" value="{{ filtrosAsig.qAsig }}" placeholder="Buscar por empleado u horario"></div>
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title mb-0"><i class="ti ti-user-check me-2 text-secondary"></i>Asignaciones recientes</h3>
+    </div>
+    <div class="card-body border-bottom">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-8">
+                <input class="form-control" name="qAsig" value="{{ filtrosAsig.qAsig }}" placeholder="Buscar por empleado u horario">
+            </div>
             <div class="col-md-2">
                 {% include 'web/_tamano_select.html.twig' with {nombre: 'tamanoAsig', valor: filtrosAsig.tamanoAsig} %}
             </div>
@@ -61,18 +111,46 @@
             <input type="hidden" name="q" value="{{ filtros.q }}">
             <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
             <input type="hidden" name="pagina" value="{{ paginacion.pagina }}">
-            <div class="col-md-2 d-flex gap-2"><button class="btn btn-outline-secondary w-100">Filtrar</button><a class="btn btn-outline-secondary" href="{{ path('web_horarios_index') }}">Limpiar</a></div>
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Filtrar</button>
+                <a class="btn btn-outline-secondary" href="{{ path('web_horarios_index') }}"><i class="ti ti-x"></i></a>
+            </div>
         </form>
-        <table class="table table-sm">
-            <thead><tr><th>Empleado</th><th>Horario</th><th>Desde</th><th>Hasta</th></tr></thead>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>Horario</th>
+                    <th>Vigente desde</th>
+                    <th>Vigente hasta</th>
+                </tr>
+            </thead>
             <tbody>
             {% for a in asignaciones %}
-                <tr><td>{{ a.empleadoId }}</td><td><code>{{ a.horarioId }}</code></td><td>{{ a.vigenteDesde }}</td><td>{{ a.vigenteHasta ?: '-' }}</td></tr>
+                <tr>
+                    <td class="fw-medium">{{ a.empleadoId }}</td>
+                    <td><code class="text-muted">{{ a.horarioId }}</code></td>
+                    <td class="text-secondary">{{ a.vigenteDesde }}</td>
+                    <td class="text-secondary">{{ a.vigenteHasta ?: '<span class="badge bg-success-lt text-success">Indefinido</span>'|raw }}</td>
+                </tr>
             {% else %}
-                <tr><td colspan="4" class="text-muted">Sin asignaciones.</td></tr>
+                <tr>
+                    <td colspan="4" class="text-center text-secondary py-4">
+                        <i class="ti ti-user-off fs-2 d-block mb-2"></i>Sin asignaciones.
+                    </td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>
-        {% include 'web/_paginacion.html.twig' with {ruta: 'web_horarios_index', query: {qAsig: filtrosAsig.qAsig, tamanoAsig: filtrosAsig.tamanoAsig, q: filtros.q, tamano: filtros.tamano, pagina: paginacion.pagina}, paginacion: {pagina: paginacionAsig.paginaAsig, totalPaginas: paginacionAsig.totalPaginasAsig}} %}
-    </div></section>
+    </div>
+    <div class="card-footer d-flex justify-content-end">
+        {% include 'web/_paginacion.html.twig' with {
+            ruta: 'web_horarios_index',
+            query: {qAsig: filtrosAsig.qAsig, tamanoAsig: filtrosAsig.tamanoAsig, q: filtros.q, tamano: filtros.tamano, pagina: paginacion.pagina},
+            paginacion: {pagina: paginacionAsig.paginaAsig, totalPaginas: paginacionAsig.totalPaginasAsig}
+        } %}
+    </div>
+</div>
 {% endblock %}

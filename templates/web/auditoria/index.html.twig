@@ -1,41 +1,97 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Auditoría{% endblock %}
+{% block title %}Auditoría — Fichajes{% endblock %}
 
 {% block body %}
-    <h1 class="h4 mb-3">Auditoría</h1>
-
-    <section class="card mb-4"><div class="card-body">
-    <h2 class="h6 mb-3">Filtros</h2>
-    <form method="get" class="row g-2 mb-0">
-        <div class="col-md-4"><input class="form-control" name="accion" value="{{ filtros.accion }}" placeholder="Acción"></div>
-        <div class="col-md-2"><input class="form-control" type="date" name="desde" value="{{ filtros.desde }}"></div>
-        <div class="col-md-2"><input class="form-control" type="date" name="hasta" value="{{ filtros.hasta }}"></div>
-        <div class="col-md-2">
-            {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
+<div class="page-header d-print-none pt-3 pb-2">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle text-secondary">Sistema</div>
+            <h2 class="page-title"><i class="ti ti-list-search me-2"></i>Auditoría</h2>
         </div>
-        <input type="hidden" name="pagina" value="1">
-        <div class="col-md-2 d-flex gap-2"><button class="btn btn-outline-secondary w-100">Filtrar</button><a class="btn btn-outline-secondary" href="{{ path('web_auditoria_index') }}">Limpiar</a></div>
-    </form>
-    </div></section>
+    </div>
+</div>
 
-    <section>
-    <h2 class="h6 mb-2">Registros de auditoria</h2>
-    <table class="table table-striped align-middle">
-        <thead><tr><th>Fecha</th><th>Acción</th><th>Antes</th><th>Después</th></tr></thead>
-        <tbody>
-        {% for item in items %}
-            <tr>
-                <td>{{ item.creadoEn }}</td>
-                <td><span class="badge text-bg-dark">{{ item.accion }}</span></td>
-                <td><code>{{ item.antes ?: '-' }}</code></td>
-                <td><code>{{ item.despues ?: '-' }}</code></td>
-            </tr>
-        {% else %}
-            <tr><td colspan="4" class="text-muted">Sin registros.</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% include 'web/_paginacion.html.twig' with {ruta: 'web_auditoria_index', query: {accion: filtros.accion, desde: filtros.desde, hasta: filtros.hasta, tamano: filtros.tamano}, paginacion: paginacion} %}
-    </section>
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title mb-0"><i class="ti ti-filter me-2 text-secondary"></i>Filtros</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Acción</label>
+                <input class="form-control font-monospace" name="accion" value="{{ filtros.accion }}"
+                       placeholder="fichaje.registrado, ausencia.aprobada…">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Desde</label>
+                <input class="form-control" type="date" name="desde" value="{{ filtros.desde }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Hasta</label>
+                <input class="form-control" type="date" name="hasta" value="{{ filtros.hasta }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Por página</label>
+                {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
+            </div>
+            <input type="hidden" name="pagina" value="1">
+            <div class="col-md-2 d-flex gap-2 align-items-end">
+                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Filtrar</button>
+                <a class="btn btn-outline-secondary" href="{{ path('web_auditoria_index') }}"><i class="ti ti-x"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title mb-0">Registros de auditoría</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th style="width:160px;">Fecha</th>
+                    <th style="width:260px;">Acción</th>
+                    <th>Estado anterior</th>
+                    <th>Estado posterior</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr>
+                    <td class="text-secondary small">{{ item.creadoEn }}</td>
+                    <td>
+                        <span class="badge bg-dark text-white">{{ item.accion }}</span>
+                    </td>
+                    <td>
+                        {% if item.antes %}
+                            <code class="text-secondary small" style="word-break:break-all;">{{ item.antes }}</code>
+                        {% else %}
+                            <span class="text-secondary">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.despues %}
+                            <code class="text-secondary small" style="word-break:break-all;">{{ item.despues }}</code>
+                        {% else %}
+                            <span class="text-secondary">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-secondary py-4">
+                        <i class="ti ti-notes-off fs-2 d-block mb-2"></i>Sin registros de auditoría.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer d-flex justify-content-end">
+        {% include 'web/_paginacion.html.twig' with {ruta: 'web_auditoria_index', query: {accion: filtros.accion, desde: filtros.desde, hasta: filtros.hasta, tamano: filtros.tamano}, paginacion: paginacion} %}
+    </div>
+</div>
 {% endblock %}

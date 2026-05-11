@@ -1,30 +1,61 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nueva asignacion de horario{% endblock %}
+{% block title %}Asignar horario — Fichajes{% endblock %}
 
 {% block body %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h4 mb-0">Asignar horario</h1>
-        <a class="btn btn-outline-secondary" href="{{ path('web_horarios_index') }}">Volver</a>
+<div class="page-header d-print-none pt-3 pb-2">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <a class="btn btn-outline-secondary btn-sm" href="{{ path('web_horarios_index') }}">
+                <i class="ti ti-arrow-left me-1"></i>Volver
+            </a>
+        </div>
+        <div class="col">
+            <div class="page-pretitle text-secondary">Horarios</div>
+            <h2 class="page-title">Asignar horario a trabajador</h2>
+        </div>
     </div>
-    <section class="card"><div class="card-body">
-        <form method="post" action="{{ path('web_horarios_asignar') }}" class="row g-2">
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="{{ path('web_horarios_asignar') }}" class="row g-3 align-items-end">
             <input type="hidden" name="_token" value="{{ csrf_token('horario_asignar') }}">
+
             <div class="col-md-3">
+                <label class="form-label">Trabajador</label>
                 <select class="form-select" name="trabajadorId" required>
-                    <option value="">Trabajador</option>
-                    {% for trabajador in trabajadores %}<option value="{{ trabajador.trabajadorId }}">{{ trabajador.trabajadorId }} - {{ trabajador.nombre }}</option>{% endfor %}
+                    <option value="">Selecciona trabajador…</option>
+                    {% for trabajador in trabajadores %}
+                        <option value="{{ trabajador.trabajadorId }}">
+                            {{ trabajador.trabajadorId }} — {{ trabajador.nombre }}
+                        </option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
+                <label class="form-label">Horario</label>
                 <select class="form-select" name="horarioId" required>
-                    <option value="">Horario</option>
-                    {% for horario in horarios %}<option value="{{ horario.id }}">{{ horario.nombre }}</option>{% endfor %}
+                    <option value="">Selecciona horario…</option>
+                    {% for horario in horarios %}
+                        <option value="{{ horario.id }}">{{ horario.nombre }}</option>
+                    {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3"><input class="form-control" type="date" name="vigenteDesde" required></div>
-            <div class="col-md-2"><input class="form-control" type="date" name="vigenteHasta"></div>
-            <div class="col-md-1"><button class="btn btn-primary w-100">OK</button></div>
+            <div class="col-md-2">
+                <label class="form-label">Vigente desde</label>
+                <input class="form-control" type="date" name="vigenteDesde" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Vigente hasta <span class="text-secondary">(opcional)</span></label>
+                <input class="form-control" type="date" name="vigenteHasta">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">
+                    <i class="ti ti-check me-1"></i>Asignar
+                </button>
+            </div>
         </form>
-    </div></section>
+    </div>
+</div>
 {% endblock %}

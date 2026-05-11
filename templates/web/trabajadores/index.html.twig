@@ -1,24 +1,33 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Trabajadores{% endblock %}
+{% block title %}Trabajadores — Fichajes{% endblock %}
 
 {% block body %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h4 mb-0">Trabajadores</h1>
+<div class="page-header d-print-none pt-3 pb-2">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle text-secondary">Gestión</div>
+            <h2 class="page-title"><i class="ti ti-users me-2"></i>Trabajadores</h2>
+        </div>
         {% if is_granted('ROLE_SUPERVISOR') %}
-            <a class="btn btn-primary" href="{{ path('web_trabajadores_nuevo', filtros) }}">Añadir trabajador</a>
+            <div class="col-auto ms-auto">
+                <a class="btn btn-primary" href="{{ path('web_trabajadores_nuevo', filtros) }}">
+                    <i class="ti ti-plus me-1"></i>Añadir trabajador
+                </a>
+            </div>
         {% endif %}
     </div>
+</div>
 
-    {% set desde = paginacion.total > 0 ? ((paginacion.pagina - 1) * paginacion.tamano + 1) : 0 %}
-    {% set hastaEstimado = desde + trabajadores|length - 1 %}
-    {% set hasta = paginacion.total > 0 ? (hastaEstimado > paginacion.total ? paginacion.total : hastaEstimado) : 0 %}
-
-    <section class="card mb-3"><div class="card-body">
-        <h2 class="h6 mb-3">Filtros</h2>
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title"><i class="ti ti-filter me-2 text-secondary"></i>Filtros</h3>
+    </div>
+    <div class="card-body">
         <form method="get" action="{{ path('web_trabajadores_index') }}" class="row g-2 align-items-end">
             <div class="col-md-4">
-                <input class="form-control" type="text" name="q" value="{{ filtros.q }}" placeholder="ID, nombre o email">
+                <input class="form-control" type="text" name="q" value="{{ filtros.q }}"
+                       placeholder="ID, nombre o email">
             </div>
             <div class="col-md-3">
                 <select class="form-select" name="estado">
@@ -32,104 +41,159 @@
             </div>
             <input type="hidden" name="pagina" value="1">
             <div class="col-md-3 d-flex gap-2">
-                <button class="btn btn-outline-primary w-100">Aplicar</button>
-                <a class="btn btn-outline-secondary" href="{{ path('web_trabajadores_index') }}">Limpiar</a>
+                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Aplicar</button>
+                <a class="btn btn-outline-secondary" href="{{ path('web_trabajadores_index') }}">
+                    <i class="ti ti-x"></i>
+                </a>
             </div>
         </form>
-    </div></section>
+    </div>
+</div>
 
-    <section>
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h2 class="h6 mb-0">Listado</h2>
-            <small class="text-muted">Mostrando {{ desde }}-{{ hasta }} de {{ paginacion.total }}</small>
-        </div>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Listado</h3>
+        {% set desde = paginacion.total > 0 ? ((paginacion.pagina - 1) * paginacion.tamano + 1) : 0 %}
+        {% set hastaEstimado = desde + trabajadores|length - 1 %}
+        {% set hasta = paginacion.total > 0 ? (hastaEstimado > paginacion.total ? paginacion.total : hastaEstimado) : 0 %}
+        <small class="text-secondary">{{ desde }}–{{ hasta }} de {{ paginacion.total }}</small>
+    </div>
     <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Estado</th><th>Cuenta</th><th>Roles</th><th>Alta</th><th class="text-end">Acciones</th></tr></thead>
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Estado</th>
+                    <th>Cuenta web</th>
+                    <th>Roles</th>
+                    <th>Alta</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
             <tbody>
             {% for item in trabajadores %}
                 <tr>
                     {% set cuenta = cuentas[item.trabajadorId] ?? {tieneCuenta: false, activo: null, roles: []} %}
-                    <td><code>{{ item.trabajadorId }}</code></td>
-                    <td>{{ item.nombre }}</td>
-                    <td>{{ item.email ?: '-' }}</td>
-                    <td><span class="badge text-bg-{{ item.estaActivo ? 'success' : 'secondary' }}">{{ item.estaActivo ? 'activo' : 'inactivo' }}</span></td>
+                    <td><code class="text-muted">{{ item.trabajadorId }}</code></td>
+                    <td class="fw-medium">{{ item.nombre }}</td>
+                    <td class="text-secondary">{{ item.email ?: '—' }}</td>
+                    <td>
+                        <span class="badge {{ item.estaActivo ? 'bg-success-lt text-success' : 'bg-secondary-lt text-secondary' }}">
+                            <i class="ti ti-{{ item.estaActivo ? 'circle-check' : 'circle-x' }} me-1"></i>
+                            {{ item.estaActivo ? 'activo' : 'inactivo' }}
+                        </span>
+                    </td>
                     <td>
                         {% if cuenta.tieneCuenta %}
-                            <span class="badge text-bg-{{ cuenta.activo ? 'success' : 'secondary' }}">{{ cuenta.activo ? 'activa' : 'inactiva' }}</span>
+                            <span class="badge {{ cuenta.activo ? 'bg-success-lt text-success' : 'bg-secondary-lt text-secondary' }}">
+                                {{ cuenta.activo ? 'activa' : 'bloqueada' }}
+                            </span>
                         {% else %}
-                            <span class="badge text-bg-light">sin cuenta</span>
+                            <span class="badge bg-light text-secondary">sin cuenta</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if cuenta.roles is not empty %}
-                            <small>{{ cuenta.roles|join(', ') }}</small>
+                            <small class="text-secondary">{{ cuenta.roles|join(', ') }}</small>
                         {% else %}
-                            <span class="text-muted">-</span>
+                            <span class="text-secondary">—</span>
                         {% endif %}
                     </td>
-                    <td>{{ item.fechaAlta|date('Y-m-d H:i') }}</td>
-                    <td class="text-end" style="white-space: nowrap; width: 1%;">
+                    <td class="text-secondary small">{{ item.fechaAlta|date('Y-m-d H:i') }}</td>
+                    <td class="text-end" style="white-space:nowrap; min-width:180px;">
                         {% if is_granted('ROLE_SUPERVISOR') %}
-                            <a class="btn btn-sm btn-outline-primary mb-1" href="{{ path('web_trabajadores_editar_form', {trabajadorId: item.trabajadorId, q: filtros.q, estado: filtros.estado, pagina: filtros.pagina, tamano: filtros.tamano}) }}">Editar</a>
-                            <form method="post" action="{{ path('web_trabajadores_estado', {trabajadorId: item.trabajadorId}) }}">
-                                <input type="hidden" name="_token" value="{{ csrf_token('trabajador_estado_' ~ item.trabajadorId) }}">
-                                <input type="hidden" name="q" value="{{ filtros.q }}">
-                                <input type="hidden" name="estado" value="{{ filtros.estado }}">
-                                <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
-                                <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-                                <input type="hidden" name="activo" value="{{ item.estaActivo ? '0' : '1' }}">
-                                <button class="btn btn-sm btn-outline-{{ item.estaActivo ? 'warning' : 'success' }}">{{ item.estaActivo ? 'Desactivar' : 'Activar' }}</button>
-                            </form>
-                            {% if puedeGestionarCuentas %}
-                                {% if cuenta.tieneCuenta %}
-                                    <form method="post" action="{{ path('web_trabajadores_cuenta_estado', {trabajadorId: item.trabajadorId}) }}" class="mt-1">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_estado_' ~ item.trabajadorId) }}">
-                                        <input type="hidden" name="q" value="{{ filtros.q }}"><input type="hidden" name="estado" value="{{ filtros.estado }}"><input type="hidden" name="pagina" value="{{ filtros.pagina }}"><input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-                                        <input type="hidden" name="activo" value="{{ cuenta.activo ? '0' : '1' }}">
-                                        <button class="btn btn-sm btn-outline-dark">{{ cuenta.activo ? 'Bloquear web' : 'Activar web' }}</button>
+                            <div class="d-flex flex-column gap-1 align-items-end">
+                                <div class="d-flex gap-1">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       href="{{ path('web_trabajadores_editar_form', {trabajadorId: item.trabajadorId, q: filtros.q, estado: filtros.estado, pagina: filtros.pagina, tamano: filtros.tamano}) }}">
+                                        <i class="ti ti-pencil me-1"></i>Editar
+                                    </a>
+                                    <form method="post" action="{{ path('web_trabajadores_estado', {trabajadorId: item.trabajadorId}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('trabajador_estado_' ~ item.trabajadorId) }}">
+                                        <input type="hidden" name="q" value="{{ filtros.q }}">
+                                        <input type="hidden" name="estado" value="{{ filtros.estado }}">
+                                        <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
+                                        <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
+                                        <input type="hidden" name="activo" value="{{ item.estaActivo ? '0' : '1' }}">
+                                        <button class="btn btn-sm {{ item.estaActivo ? 'btn-outline-warning' : 'btn-outline-success' }}">
+                                            {{ item.estaActivo ? 'Desactivar' : 'Activar' }}
+                                        </button>
                                     </form>
-                                    <form method="post" action="{{ path('web_trabajadores_cuenta_reset', {trabajadorId: item.trabajadorId}) }}" class="mt-1">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_reset_' ~ item.trabajadorId) }}">
-                                        <input type="hidden" name="q" value="{{ filtros.q }}"><input type="hidden" name="estado" value="{{ filtros.estado }}"><input type="hidden" name="pagina" value="{{ filtros.pagina }}"><input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-                                        <input class="form-control form-control-sm mb-1" name="token" type="text" placeholder="Token reset (vacío para emitir)">
-                                        <input class="form-control form-control-sm" name="password" type="password" minlength="12" placeholder="Nueva password web (si confirmas)">
-                                        <button class="btn btn-sm btn-outline-danger mt-1">Confirmar reset</button>
-                                    </form>
-                                    <form method="post" action="{{ path('web_trabajadores_cuenta_rol', {trabajadorId: item.trabajadorId}) }}" class="mt-1">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_rol_' ~ item.trabajadorId) }}">
-                                        <input type="hidden" name="q" value="{{ filtros.q }}"><input type="hidden" name="estado" value="{{ filtros.estado }}"><input type="hidden" name="pagina" value="{{ filtros.pagina }}"><input type="hidden" name="tamano" value="{{ filtros.tamano }}">
+                                </div>
+
+                                {% if puedeGestionarCuentas %}
+                                    {% if cuenta.tieneCuenta %}
                                         <div class="d-flex gap-1">
+                                            <form method="post" action="{{ path('web_trabajadores_cuenta_estado', {trabajadorId: item.trabajadorId}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_estado_' ~ item.trabajadorId) }}">
+                                                <input type="hidden" name="q" value="{{ filtros.q }}">
+                                                <input type="hidden" name="estado" value="{{ filtros.estado }}">
+                                                <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
+                                                <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
+                                                <input type="hidden" name="activo" value="{{ cuenta.activo ? '0' : '1' }}">
+                                                <button class="btn btn-sm btn-outline-{{ cuenta.activo ? 'warning' : 'success' }}">
+                                                    {{ cuenta.activo ? 'Bloquear web' : 'Activar web' }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <form method="post" action="{{ path('web_trabajadores_cuenta_reset', {trabajadorId: item.trabajadorId}) }}" class="d-flex flex-column gap-1">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_reset_' ~ item.trabajadorId) }}">
+                                            <input type="hidden" name="q" value="{{ filtros.q }}">
+                                            <input type="hidden" name="estado" value="{{ filtros.estado }}">
+                                            <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
+                                            <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
+                                            <input class="form-control form-control-sm" name="token" type="text" placeholder="Token reset (vacío para emitir)">
+                                            <input class="form-control form-control-sm" name="password" type="password" minlength="12" placeholder="Nueva contraseña web">
+                                            <button class="btn btn-sm btn-outline-danger">Confirmar reset</button>
+                                        </form>
+                                        <form method="post" action="{{ path('web_trabajadores_cuenta_rol', {trabajadorId: item.trabajadorId}) }}" class="d-flex gap-1">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_rol_' ~ item.trabajadorId) }}">
+                                            <input type="hidden" name="q" value="{{ filtros.q }}">
+                                            <input type="hidden" name="estado" value="{{ filtros.estado }}">
+                                            <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
+                                            <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
                                             <select class="form-select form-select-sm" name="rol">
                                                 <option value="trabajador">trabajador</option>
                                                 <option value="responsable_equipo">responsable_equipo</option>
                                             </select>
-                                            <button class="btn btn-sm btn-outline-success" name="accionRol" value="asignar">+</button>
-                                            <button class="btn btn-sm btn-outline-warning" name="accionRol" value="revocar">-</button>
-                                        </div>
-                                    </form>
-                                {% else %}
-                                    <form method="post" action="{{ path('web_trabajadores_cuenta_crear', {trabajadorId: item.trabajadorId}) }}" class="mt-1">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_crear_' ~ item.trabajadorId) }}">
-                                        <input type="hidden" name="q" value="{{ filtros.q }}"><input type="hidden" name="estado" value="{{ filtros.estado }}"><input type="hidden" name="pagina" value="{{ filtros.pagina }}"><input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-                                        <input class="form-control form-control-sm mb-1" name="email" type="email" placeholder="email@empresa.com (opcional)">
-                                        <input class="form-control form-control-sm" name="password" type="password" minlength="12" placeholder="Password web inicial" required>
-                                        <button class="btn btn-sm btn-outline-success mt-1">Crear cuenta</button>
-                                    </form>
+                                            <button class="btn btn-sm btn-outline-success" name="accionRol" value="asignar" title="Asignar">+</button>
+                                            <button class="btn btn-sm btn-outline-warning" name="accionRol" value="revocar" title="Revocar">−</button>
+                                        </form>
+                                    {% else %}
+                                        <form method="post" action="{{ path('web_trabajadores_cuenta_crear', {trabajadorId: item.trabajadorId}) }}" class="d-flex flex-column gap-1">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_crear_' ~ item.trabajadorId) }}">
+                                            <input type="hidden" name="q" value="{{ filtros.q }}">
+                                            <input type="hidden" name="estado" value="{{ filtros.estado }}">
+                                            <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
+                                            <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
+                                            <input class="form-control form-control-sm" name="email" type="email" placeholder="email@empresa.com (opcional)">
+                                            <input class="form-control form-control-sm" name="password" type="password" minlength="12" placeholder="Contraseña web inicial" required>
+                                            <button class="btn btn-sm btn-outline-success">
+                                                <i class="ti ti-user-plus me-1"></i>Crear cuenta
+                                            </button>
+                                        </form>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
+                            </div>
                         {% else %}
-                            <span class="text-muted">Solo consulta</span>
+                            <span class="text-secondary small">Solo consulta</span>
                         {% endif %}
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="8" class="text-muted">Sin trabajadores.</td></tr>
+                <tr>
+                    <td colspan="8" class="text-center text-secondary py-4">
+                        <i class="ti ti-users-off fs-2 d-block mb-2"></i>Sin trabajadores.
+                    </td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
-    </section>
-
-    {% include 'web/_paginacion.html.twig' with {ruta: 'web_trabajadores_index', query: {q: filtros.q, estado: filtros.estado, tamano: filtros.tamano}, paginacion: paginacion} %}
+    <div class="card-footer d-flex justify-content-end">
+        {% include 'web/_paginacion.html.twig' with {ruta: 'web_trabajadores_index', query: {q: filtros.q, estado: filtros.estado, tamano: filtros.tamano}, paginacion: paginacion} %}
+    </div>
+</div>
 {% endblock %}

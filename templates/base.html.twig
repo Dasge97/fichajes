@@ -1,62 +1,128 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <title>{% block title %}Fichajes{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/dist/tabler-icons.min.css">
     {% block stylesheets %}{% endblock %}
 </head>
-<body class="bg-body-tertiary">
-<nav class="navbar navbar-expand-lg bg-dark navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ path('app_dashboard') }}">Fichajes V1</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navPrincipal">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navPrincipal">
-            {% if app.user %}
-                {% set rutaActual = app.request.attributes.get('_route') %}
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link {{ rutaActual starts with 'web_herramienta_fichaje_kiosko' ? 'active' : '' }}" href="{{ path('web_herramienta_fichaje_kiosko') }}">Kiosko fichaje</a></li>
-                    <li class="nav-item"><a class="nav-link {{ rutaActual starts with 'web_fichajes_' ? 'active' : '' }}" href="{{ path('web_fichajes_index') }}">Fichajes</a></li>
-                    <li class="nav-item"><a class="nav-link {{ rutaActual starts with 'web_horarios_' ? 'active' : '' }}" href="{{ path('web_horarios_index') }}">Horarios</a></li>
-                    <li class="nav-item"><a class="nav-link {{ rutaActual starts with 'web_ausencias_' ? 'active' : '' }}" href="{{ path('web_ausencias_index') }}">Ausencias</a></li>
-                    <li class="nav-item"><a class="nav-link {{ rutaActual starts with 'web_trabajadores_' ? 'active' : '' }}" href="{{ path('web_trabajadores_index') }}">Trabajadores</a></li>
-                    <li class="nav-item"><a class="nav-link {{ rutaActual starts with 'web_correcciones_' ? 'active' : '' }}" href="{{ path('web_correcciones_index') }}">Correcciones</a></li>
-                    <li class="nav-item"><a class="nav-link {{ rutaActual starts with 'web_auditoria_' ? 'active' : '' }}" href="{{ path('web_auditoria_index') }}">Auditoría</a></li>
-                </ul>
-            {% endif %}
-            <div class="d-flex align-items-center gap-2 text-white">
+<body class="antialiased">
+<div class="wrapper">
+
+    <header class="navbar navbar-expand-md navbar-dark bg-dark d-print-none sticky-top">
+        <div class="container-fluid">
+            <a href="{{ path('app_dashboard') }}" class="navbar-brand navbar-brand-autodark">
+                <span class="fw-bold fs-4">Fichajes</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navPrincipal">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navPrincipal">
                 {% if app.user %}
-                    <span class="badge text-bg-info">Tenant {{ app.user.tenantId }}</span>
-                    <span>{{ app.user.userIdentifier }}</span>
-                    <a class="btn btn-sm btn-outline-light" href="{{ path('app_logout') }}">Salir</a>
-                {% else %}
-                    <a class="btn btn-sm btn-outline-light" href="{{ path('app_login') }}">Entrar</a>
+                    {% set rutaActual = app.request.attributes.get('_route') %}
+                    <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                        <li class="nav-item">
+                            <a class="nav-link {{ rutaActual starts with 'web_herramienta_fichaje_kiosko' ? 'active' : '' }}" href="{{ path('web_herramienta_fichaje_kiosko') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-device-tablet"></i></span>
+                                <span class="nav-link-title">Kiosco</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ rutaActual starts with 'web_fichajes_' ? 'active' : '' }}" href="{{ path('web_fichajes_index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-clock"></i></span>
+                                <span class="nav-link-title">Fichajes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ rutaActual starts with 'web_horarios_' ? 'active' : '' }}" href="{{ path('web_horarios_index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-calendar-event"></i></span>
+                                <span class="nav-link-title">Horarios</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ rutaActual starts with 'web_ausencias_' ? 'active' : '' }}" href="{{ path('web_ausencias_index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-beach"></i></span>
+                                <span class="nav-link-title">Ausencias</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ rutaActual starts with 'web_trabajadores_' ? 'active' : '' }}" href="{{ path('web_trabajadores_index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-users"></i></span>
+                                <span class="nav-link-title">Trabajadores</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ rutaActual starts with 'web_correcciones_' ? 'active' : '' }}" href="{{ path('web_correcciones_index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-pencil"></i></span>
+                                <span class="nav-link-title">Correcciones</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ rutaActual starts with 'web_auditoria_' ? 'active' : '' }}" href="{{ path('web_auditoria_index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-list-search"></i></span>
+                                <span class="nav-link-title">Auditoría</span>
+                            </a>
+                        </li>
+                    </ul>
                 {% endif %}
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    {% if app.user %}
+                        <span class="badge bg-azure-lt text-azure fw-semibold">
+                            <i class="ti ti-building me-1"></i>{{ app.user.tenantId }}
+                        </span>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link d-flex align-items-center gap-2 text-white px-0" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="avatar avatar-sm" style="background:rgba(255,255,255,.15); font-size:.75rem;">
+                                    {{ app.user.userIdentifier|first|upper }}
+                                </span>
+                                <span class="d-none d-lg-inline small">{{ app.user.userIdentifier }}</span>
+                                <i class="ti ti-chevron-down small"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm">
+                                <a href="{{ path('app_logout') }}" class="dropdown-item text-danger">
+                                    <i class="ti ti-logout me-2"></i>Cerrar sesión
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="btn btn-outline-light btn-sm">Entrar</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
-</nav>
+    </header>
 
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080; max-width: 420px;">
-    {% for tipo, mensajes in app.flashes %}
-        {% for mensaje in mensajes %}
-            <div class="alert alert-{{ tipo == 'error' ? 'danger' : tipo }} alert-dismissible fade show shadow" role="alert">
-                {{ mensaje }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="page-wrapper">
+        <div class="container-xl">
+
+            {% for tipo, mensajes in app.flashes %}
+                {% for mensaje in mensajes %}
+                    <div class="alert alert-{{ tipo == 'error' ? 'danger' : tipo }} alert-dismissible mt-3" role="alert">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">
+                                {% if tipo == 'success' %}<i class="ti ti-circle-check fs-4"></i>
+                                {% elseif tipo == 'error' or tipo == 'danger' %}<i class="ti ti-alert-circle fs-4"></i>
+                                {% elseif tipo == 'warning' %}<i class="ti ti-alert-triangle fs-4"></i>
+                                {% else %}<i class="ti ti-info-circle fs-4"></i>{% endif %}
+                            </div>
+                            <div>{{ mensaje }}</div>
+                        </div>
+                        <a class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></a>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            <div class="page-body">
+                {% block body %}{% endblock %}
             </div>
-        {% endfor %}
-    {% endfor %}
+
+        </div>
+    </div>
+
 </div>
-
-<main class="container py-4">
-
-    {% block body %}{% endblock %}
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/js/tabler.min.js"></script>
 {% block javascripts %}{% endblock %}
 </body>
 </html>
