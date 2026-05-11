@@ -1,156 +1,250 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Horarios — Fichajes{% endblock %}
+{% block title %}Horarios{% endblock %}
+
+{% block stylesheets %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+{% endblock %}
 
 {% block body %}
-<div class="page-header d-print-none pt-3 pb-2">
-    <div class="row align-items-center">
-        <div class="col">
-            <div class="page-pretitle text-secondary">Gestión</div>
-            <h2 class="page-title"><i class="ti ti-calendar-event me-2"></i>Horarios</h2>
-        </div>
+<div class="mb-6">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+        <a href="{{ path('app_dashboard') }}" class="hover:text-gray-600 transition-colors">Inicio</a>
+        <i class="ti ti-chevron-right text-gray-300" style="font-size:.65rem;"></i>
+        <span>Horarios</span>
+    </p>
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="ti ti-calendar-event text-blue-500"></i>Horarios
+        </h1>
         {% if is_granted('ROLE_SUPERVISOR') %}
-            <div class="col-auto ms-auto d-flex gap-2">
-                <a class="btn btn-primary" href="{{ path('web_horarios_nuevo') }}">
-                    <i class="ti ti-plus me-1"></i>Añadir horario
-                </a>
-                <a class="btn btn-outline-primary" href="{{ path('web_horarios_asignacion_nueva') }}">
-                    <i class="ti ti-user-check me-1"></i>Asignar horario
-                </a>
-            </div>
+        <div class="flex gap-2">
+            <a href="{{ path('web_horarios_nuevo') }}"
+               class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                <i class="ti ti-plus"></i>Nuevo horario
+            </a>
+            <a href="{{ path('web_horarios_asignacion_nueva') }}"
+               class="inline-flex items-center gap-1.5 rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
+                <i class="ti ti-user-check"></i>Asignar horario
+            </a>
+        </div>
         {% endif %}
     </div>
 </div>
 
-<div class="card mb-3">
-    <div class="card-header">
-        <h3 class="card-title mb-0"><i class="ti ti-filter me-2 text-secondary"></i>Filtros de horarios</h3>
-    </div>
-    <div class="card-body">
-        <form method="get" class="row g-2 align-items-end">
-            <div class="col-md-8">
-                <input class="form-control" name="q" value="{{ filtros.q }}" placeholder="Buscar por ID o nombre">
-            </div>
-            <div class="col-md-2">
+{# Vista toggle #}
+<div class="flex gap-2 mb-4">
+    <button id="btnTabla" onclick="setVista('tabla')"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-blue-600 bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors">
+        <i class="ti ti-list"></i>Tabla
+    </button>
+    <button id="btnCalendario" onclick="setVista('calendario')"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+        <i class="ti ti-calendar"></i>Calendario de asignaciones
+    </button>
+</div>
+
+<div id="vistaTabla">
+    {# Filtros horarios #}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2"><i class="ti ti-filter text-gray-400"></i>Filtros de horarios</h3>
+        </div>
+        <div class="p-5">
+            <form method="get" class="flex flex-wrap items-end gap-3">
+                <div class="flex-1 min-w-48">
+                    <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                           name="q" value="{{ filtros.q }}" placeholder="Buscar por ID o nombre">
+                </div>
                 {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
-            </div>
-            <input type="hidden" name="pagina" value="1">
-            <input type="hidden" name="qAsig" value="{{ filtrosAsig.qAsig }}">
-            <input type="hidden" name="tamanoAsig" value="{{ filtrosAsig.tamanoAsig }}">
-            <input type="hidden" name="paginaAsig" value="{{ paginacionAsig.paginaAsig }}">
-            <div class="col-md-2 d-flex gap-2">
-                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Filtrar</button>
-                <a class="btn btn-outline-secondary" href="{{ path('web_horarios_index') }}"><i class="ti ti-x"></i></a>
-            </div>
-        </form>
+                <input type="hidden" name="pagina" value="1">
+                <input type="hidden" name="qAsig" value="{{ filtrosAsig.qAsig }}">
+                <input type="hidden" name="tamanoAsig" value="{{ filtrosAsig.tamanoAsig }}">
+                <input type="hidden" name="paginaAsig" value="{{ paginacionAsig.paginaAsig }}">
+                <button class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                    <i class="ti ti-search"></i>Filtrar
+                </button>
+                <a href="{{ path('web_horarios_index') }}"
+                   class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+                    <i class="ti ti-x"></i>Limpiar
+                </a>
+            </form>
+        </div>
     </div>
-</div>
 
-<div class="card mb-4">
-    <div class="card-header">
-        <h3 class="card-title mb-0">Catálogo de horarios</h3>
+    {# Catálogo horarios #}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900">Catálogo de horarios</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tramos</th>
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                {% for h in horarios %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-5 py-3 font-medium text-gray-900">{{ h.nombre }}</td>
+                        <td class="px-5 py-3 text-xs text-gray-400 font-mono">{{ h.tramos|slice(0, 80) }}{% if h.tramos|length > 80 %}…{% endif %}</td>
+                        <td class="px-5 py-3 text-right">
+                            {% if is_granted('ROLE_SUPERVISOR') %}
+                                <a href="{{ path('web_horarios_editar_form', {id: h.id}) }}"
+                                   class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                                    <i class="ti ti-pencil"></i>Editar
+                                </a>
+                            {% else %}
+                                <span class="text-xs text-gray-300">Solo supervisor</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="px-5 py-10 text-center text-gray-400">
+                            <i class="ti ti-calendar-off text-3xl block mb-2"></i>No hay horarios.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="px-5 py-3 border-t border-gray-100 flex justify-end">
+            {% include 'web/_paginacion.html.twig' with {
+                ruta: 'web_horarios_index',
+                query: {q: filtros.q, tamano: filtros.tamano, qAsig: filtrosAsig.qAsig, tamanoAsig: filtrosAsig.tamanoAsig, paginaAsig: paginacionAsig.paginaAsig},
+                paginacion: {pagina: paginacion.pagina, totalPaginas: paginacion.totalPaginas}
+            } %}
+        </div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-vcenter card-table">
-            <thead>
-                <tr>
-                    <th style="width:120px;">ID</th>
-                    <th>Nombre</th>
-                    <th>Tramos</th>
-                    <th class="text-end" style="width:100px;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for h in horarios %}
-                <tr>
-                    <td><code class="text-muted">{{ h.id }}</code></td>
-                    <td class="fw-medium">{{ h.nombre }}</td>
-                    <td><code class="text-secondary small">{{ h.tramos|slice(0, 80) }}{% if h.tramos|length > 80 %}…{% endif %}</code></td>
-                    <td class="text-end">
-                        {% if is_granted('ROLE_SUPERVISOR') %}
-                            <a class="btn btn-sm btn-outline-primary" href="{{ path('web_horarios_editar_form', {id: h.id}) }}">
-                                <i class="ti ti-pencil me-1"></i>Editar
-                            </a>
-                        {% else %}
-                            <span class="text-secondary small">Solo supervisor</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="4" class="text-center text-secondary py-4">
-                        <i class="ti ti-calendar-off fs-2 d-block mb-2"></i>No hay horarios.
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="card-footer d-flex justify-content-end">
-        {% include 'web/_paginacion.html.twig' with {
-            ruta: 'web_horarios_index',
-            query: {q: filtros.q, tamano: filtros.tamano, qAsig: filtrosAsig.qAsig, tamanoAsig: filtrosAsig.tamanoAsig, paginaAsig: paginacionAsig.paginaAsig},
-            paginacion: {pagina: paginacion.pagina, totalPaginas: paginacion.totalPaginas}
-        } %}
-    </div>
-</div>
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title mb-0"><i class="ti ti-user-check me-2 text-secondary"></i>Asignaciones recientes</h3>
-    </div>
-    <div class="card-body border-bottom">
-        <form method="get" class="row g-2 align-items-end">
-            <div class="col-md-8">
-                <input class="form-control" name="qAsig" value="{{ filtrosAsig.qAsig }}" placeholder="Buscar por empleado u horario">
-            </div>
-            <div class="col-md-2">
+    {# Asignaciones #}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                <i class="ti ti-user-check text-gray-400"></i>Asignaciones recientes
+            </h3>
+        </div>
+        <div class="p-5 border-b border-gray-100">
+            <form method="get" class="flex flex-wrap items-end gap-3">
+                <div class="flex-1 min-w-48">
+                    <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                           name="qAsig" value="{{ filtrosAsig.qAsig }}" placeholder="Buscar por empleado u horario">
+                </div>
                 {% include 'web/_tamano_select.html.twig' with {nombre: 'tamanoAsig', valor: filtrosAsig.tamanoAsig} %}
-            </div>
-            <input type="hidden" name="paginaAsig" value="1">
-            <input type="hidden" name="q" value="{{ filtros.q }}">
-            <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-            <input type="hidden" name="pagina" value="{{ paginacion.pagina }}">
-            <div class="col-md-2 d-flex gap-2">
-                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Filtrar</button>
-                <a class="btn btn-outline-secondary" href="{{ path('web_horarios_index') }}"><i class="ti ti-x"></i></a>
-            </div>
-        </form>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-vcenter card-table">
-            <thead>
-                <tr>
-                    <th>Empleado</th>
-                    <th>Horario</th>
-                    <th>Vigente desde</th>
-                    <th>Vigente hasta</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for a in asignaciones %}
-                <tr>
-                    <td class="fw-medium">{{ a.empleadoId }}</td>
-                    <td><code class="text-muted">{{ a.horarioId }}</code></td>
-                    <td class="text-secondary">{{ a.vigenteDesde }}</td>
-                    <td class="text-secondary">{{ a.vigenteHasta ?: '<span class="badge bg-success-lt text-success">Indefinido</span>'|raw }}</td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="4" class="text-center text-secondary py-4">
-                        <i class="ti ti-user-off fs-2 d-block mb-2"></i>Sin asignaciones.
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="card-footer d-flex justify-content-end">
-        {% include 'web/_paginacion.html.twig' with {
-            ruta: 'web_horarios_index',
-            query: {qAsig: filtrosAsig.qAsig, tamanoAsig: filtrosAsig.tamanoAsig, q: filtros.q, tamano: filtros.tamano, pagina: paginacion.pagina},
-            paginacion: {pagina: paginacionAsig.paginaAsig, totalPaginas: paginacionAsig.totalPaginasAsig}
-        } %}
+                <input type="hidden" name="paginaAsig" value="1">
+                <input type="hidden" name="q" value="{{ filtros.q }}">
+                <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
+                <input type="hidden" name="pagina" value="{{ paginacion.pagina }}">
+                <button class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                    <i class="ti ti-search"></i>Filtrar
+                </button>
+                <a href="{{ path('web_horarios_index') }}"
+                   class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+                    <i class="ti ti-x"></i>Limpiar
+                </a>
+            </form>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Empleado</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Horario</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Vigente desde</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Vigente hasta</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                {% for a in asignaciones %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-5 py-3 font-medium text-gray-900">
+                            {{ a.empleadoNombre }}
+                            {% if a.empleadoCodigo %}
+                                <span class="ml-1.5 font-mono text-xs text-gray-400">({{ a.empleadoCodigo }})</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-5 py-3 text-gray-700">{{ a.horarioNombre }}</td>
+                        <td class="px-5 py-3 text-gray-500 text-xs">{{ a.vigenteDesde|date('d/m/Y') }}</td>
+                        <td class="px-5 py-3">
+                            {% if a.vigenteHasta %}
+                                <span class="text-xs text-gray-500">{{ a.vigenteHasta|date('d/m/Y') }}</span>
+                            {% else %}
+                                <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800">Indefinido</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="px-5 py-10 text-center text-gray-400">
+                            <i class="ti ti-user-off text-3xl block mb-2"></i>Sin asignaciones.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="px-5 py-3 border-t border-gray-100 flex justify-end">
+            {% include 'web/_paginacion.html.twig' with {
+                ruta: 'web_horarios_index',
+                query: {qAsig: filtrosAsig.qAsig, tamanoAsig: filtrosAsig.tamanoAsig, q: filtros.q, tamano: filtros.tamano, pagina: paginacion.pagina},
+                paginacion: {pagina: paginacionAsig.paginaAsig, totalPaginas: paginacionAsig.totalPaginasAsig}
+            } %}
+        </div>
     </div>
 </div>
+
+<div id="vistaCalendario" style="display:none;">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <div id="horariosCalendar" style="min-height:560px;"></div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script>
+{% set asigEvents = [] %}
+{% for a in calendarAsignaciones %}
+    {% set asigEvents = asigEvents|merge([{
+        title: a.empleadoNombre ~ ' → ' ~ a.horarioNombre,
+        start: a.vigenteDesde,
+        end: a.vigenteHasta ?: '2099-12-31',
+        color: '#2563eb'
+    }]) %}
+{% endfor %}
+const horariosEvents = {{ asigEvents|json_encode|raw }};
+
+document.addEventListener('DOMContentLoaded', function () {
+    const cal = new FullCalendar.Calendar(document.getElementById('horariosCalendar'), {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        events: horariosEvents,
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' },
+        eventDisplay: 'block',
+        height: 'auto',
+    });
+    cal.render();
+});
+
+function setVista(v) {
+    const esTabla = v === 'tabla';
+    document.getElementById('vistaTabla').style.display = esTabla ? '' : 'none';
+    document.getElementById('vistaCalendario').style.display = esTabla ? 'none' : '';
+    const btnTabla = document.getElementById('btnTabla');
+    const btnCal = document.getElementById('btnCalendario');
+    const activeClasses = ['bg-blue-600', 'border-blue-600', 'text-white'];
+    const inactiveClasses = ['bg-white', 'border-gray-300', 'text-gray-600', 'hover:bg-gray-50'];
+    if (esTabla) {
+        btnTabla.classList.add(...activeClasses); btnTabla.classList.remove(...inactiveClasses);
+        btnCal.classList.remove(...activeClasses); btnCal.classList.add(...inactiveClasses);
+    } else {
+        btnCal.classList.add(...activeClasses); btnCal.classList.remove(...inactiveClasses);
+        btnTabla.classList.remove(...activeClasses); btnTabla.classList.add(...inactiveClasses);
+    }
+}
+</script>
+{% endblock %}
 {% endblock %}

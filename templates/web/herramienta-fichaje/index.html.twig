@@ -3,47 +3,43 @@
 {% block title %}Herramienta de fichaje — Fichajes{% endblock %}
 
 {% block body %}
-<div class="page-header d-print-none pt-3 pb-2">
-    <div class="row align-items-center">
-        <div class="col">
-            <div class="page-pretitle text-secondary">Operativa</div>
-            <h2 class="page-title"><i class="ti ti-fingerprint me-2"></i>Herramienta de fichaje</h2>
-        </div>
-    </div>
+<div class="mb-6">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+        <a href="{{ path('app_dashboard') }}" class="hover:text-gray-600 transition-colors">Inicio</a>
+        <i class="ti ti-chevron-right text-gray-300" style="font-size:.65rem;"></i>
+        <span>Herramienta de fichaje</span>
+    </p>
+    <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <i class="ti ti-fingerprint text-blue-500"></i>Herramienta de fichaje
+    </h1>
 </div>
 
 {% if trabajador is null %}
 
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title mb-0">
-                        <i class="ti ti-id-badge me-2 text-secondary"></i>Identificación del trabajador
+    <div class="flex justify-center">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div class="px-5 py-4 border-b border-gray-100">
+                    <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <i class="ti ti-id-badge text-gray-400"></i>Identificación del trabajador
                     </h3>
                 </div>
-                <div class="card-body">
-                    <form method="post" action="{{ path('web_herramienta_fichaje_iniciar') }}" class="vstack gap-3">
+                <div class="p-5">
+                    <form method="post" action="{{ path('web_herramienta_fichaje_iniciar') }}" class="space-y-4">
                         <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_iniciar') }}">
                         <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
                         <div>
-                            <label class="form-label">Código de trabajador</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="ti ti-user"></i></span>
-                                <input class="form-control form-control-lg" name="trabajadorId"
-                                       placeholder="EMP-001" required autofocus>
-                            </div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Código de trabajador</label>
+                            <input class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                                   name="trabajadorId" placeholder="EMP-001" required autofocus>
                         </div>
                         <div>
-                            <label class="form-label">Clave de fichaje</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="ti ti-lock"></i></span>
-                                <input class="form-control form-control-lg" type="password"
-                                       name="claveAcceso" placeholder="••••" required>
-                            </div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Clave de fichaje</label>
+                            <input class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                                   type="password" name="claveAcceso" placeholder="••••" required>
                         </div>
-                        <button class="btn btn-primary btn-lg">
-                            <i class="ti ti-login me-2"></i>Iniciar fichaje
+                        <button class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                            <i class="ti ti-login"></i>Iniciar fichaje
                         </button>
                     </form>
                 </div>
@@ -53,71 +49,74 @@
 
 {% else %}
 
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-6">
+    <div class="flex justify-center">
+        <div class="w-full max-w-lg space-y-4">
 
-            <div class="card mb-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="avatar avatar-lg bg-blue text-white fs-4">
-                                {{ trabajador.nombre|first|upper }}
-                            </span>
-                            <div>
-                                <div class="fw-bold fs-5">{{ trabajador.nombre }}</div>
-                                <div class="text-secondary small">
-                                    <code>{{ trabajador.trabajadorId }}</code>
-                                    <span class="badge bg-secondary-lt text-secondary ms-2">
-                                        {{ estado|replace({'_': ' '}) }}
-                                    </span>
-                                </div>
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="flex-shrink-0 w-11 h-11 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg font-bold">
+                            {{ trabajador.nombre|first|upper }}
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-900">{{ trabajador.nombre }}</div>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="font-mono text-xs text-gray-500">{{ trabajador.trabajadorId }}</span>
+                                <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600">
+                                    {{ estado|replace({'_': ' '}) }}
+                                </span>
                             </div>
                         </div>
-                        <form method="post" action="{{ path('web_herramienta_fichaje_cerrar') }}">
-                            <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_cerrar') }}">
-                            <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
-                            <button class="btn btn-outline-secondary btn-sm">
-                                <i class="ti ti-switch-2 me-1"></i>Cambiar trabajador
-                            </button>
-                        </form>
                     </div>
+                    <form method="post" action="{{ path('web_herramienta_fichaje_cerrar') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_cerrar') }}">
+                        <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
+                        <button class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                            <i class="ti ti-switch-2"></i>Cambiar trabajador
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title mb-0">
-                        <i class="ti ti-player-play me-2 text-secondary"></i>Acciones disponibles
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div class="px-5 py-4 border-b border-gray-100">
+                    <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <i class="ti ti-player-play text-gray-400"></i>Acciones disponibles
                     </h3>
                 </div>
-                <div class="card-body">
+                <div class="p-5">
                     <form method="post" action="{{ path('web_herramienta_fichaje_accion') }}"
-                          class="d-flex flex-wrap gap-2">
+                          class="flex flex-wrap gap-2">
                         <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_accion') }}">
                         <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
 
                         {% if estado == 'en_jornada' %}
-                            <button class="btn btn-warning btn-lg" name="accion" value="pausa">
-                                <i class="ti ti-player-pause me-2"></i>Pausar
+                            <button class="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-yellow-600 transition-colors"
+                                    name="accion" value="pausa">
+                                <i class="ti ti-player-pause"></i>Pausar
                             </button>
-                            <button class="btn btn-danger btn-lg" name="accion" value="finalizar">
-                                <i class="ti ti-logout me-2"></i>Finalizar jornada
+                            <button class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
+                                    name="accion" value="finalizar">
+                                <i class="ti ti-logout"></i>Finalizar jornada
                             </button>
                         {% elseif estado == 'en_pausa' %}
-                            <button class="btn btn-success btn-lg" name="accion" value="reanudar">
-                                <i class="ti ti-player-play me-2"></i>Reanudar
+                            <button class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+                                    name="accion" value="reanudar">
+                                <i class="ti ti-player-play"></i>Reanudar
                             </button>
-                            <button class="btn btn-danger btn-lg" name="accion" value="finalizar">
-                                <i class="ti ti-logout me-2"></i>Finalizar jornada
+                            <button class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
+                                    name="accion" value="finalizar">
+                                <i class="ti ti-logout"></i>Finalizar jornada
                             </button>
                         {% elseif estado == 'finalizada' %}
-                            <button class="btn btn-primary btn-lg" name="accion" value="iniciar_nuevo">
-                                <i class="ti ti-login me-2"></i>Iniciar nueva jornada
+                            <button class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                                    name="accion" value="iniciar_nuevo">
+                                <i class="ti ti-login"></i>Iniciar nueva jornada
                             </button>
                         {% else %}
-                            <div class="text-secondary">
-                                <i class="ti ti-info-circle me-2"></i>No hay jornada activa para hoy.
-                            </div>
+                            <p class="text-sm text-gray-500 flex items-center gap-2">
+                                <i class="ti ti-info-circle"></i>No hay jornada activa para hoy.
+                            </p>
                         {% endif %}
                     </form>
                 </div>

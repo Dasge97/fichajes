@@ -36,14 +36,17 @@ class CorreccionesWebController extends AbstractController
         $estado = trim((string) $request->query->get('estado', ''));
         $tamano = max(10, min(50, (int) $request->query->get('tamano', 20)));
         $pagina = max(1, (int) $request->query->get('pagina', 1));
-        $sqlBase = ' FROM correccion_fichaje WHERE tenantId = :tenant';
+        $sqlBase = ' FROM correccion_fichaje c
+            JOIN evento_fichaje ef ON ef.id = c.eventoFichajeId
+            LEFT JOIN trabajador t ON t.id = ef.empleadoId AND t.tenantId = c.tenantId
+            WHERE c.tenantId = :tenant';
         $params = ['tenant' => $tenantId];
         if ($q !== '') {
-            $sqlBase .= ' AND (eventoFichajeId LIKE :q OR motivo LIKE :q)';
+            $sqlBase .= ' AND (c.motivo LIKE :q OR t.nombre LIKE :q OR t.trabajadorId LIKE :q)';
             $params['q'] = '%'.$q.'%';
         }
         if ($estado !== '') {
-            $sqlBase .= ' AND estado = :estado';
+            $sqlBase .= ' AND c.estado = :estado';
             $params['estado'] = $estado;
         }
         $total = (int) $this->connection->fetchOne('SELECT COUNT(*)'.$sqlBase, $params);
@@ -51,7 +54,11 @@ class CorreccionesWebController extends AbstractController
         $pagina = min($pagina, $totalPaginas);
         $offset = ($pagina - 1) * $tamano;
         $items = $this->connection->fetchAllAssociative(
-            'SELECT id, eventoFichajeId, estado, motivo, ocurridoEnCorregido, tipoCorregido'.$sqlBase.' ORDER BY id DESC LIMIT '.$tamano.' OFFSET '.$offset,
+            'SELECT c.id, c.estado, c.motivo, c.ocurridoEnCorregido, c.tipoCorregido,
+                    ef.tipo AS eventoTipo, ef.ocurridoEn AS eventoFecha,
+                    COALESCE(t.nombre, ef.empleadoId) AS empleadoNombre,
+                    t.trabajadorId AS empleadoCodigo'
+            .$sqlBase.' ORDER BY c.id DESC LIMIT '.$tamano.' OFFSET '.$offset,
             $params
         );
 

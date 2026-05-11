@@ -53,13 +53,35 @@ class DashboardController extends AbstractController
             ),
         ];
 
-        $actividadReciente = $this->connection->fetchAllAssociative(
-            'SELECT accion, creadoEn FROM registro_auditoria WHERE tenantId = :tenant ORDER BY creadoEn DESC LIMIT 8',
-            ['tenant' => $tenantId]
+        $actividadReciente = array_map(
+            static function (array $row): array {
+                $despues = isset($row['despues']) ? json_decode($row['despues'], true) : null;
+                $row['contexto'] = null;
+                if (is_array($despues) && $despues !== []) {
+                    $clave = array_key_first($despues);
+                    $valor = $despues[$clave];
+                    if (is_scalar($valor)) {
+                        $row['contexto'] = $valor;
+                    }
+                }
+                unset($row['despues']);
+                return $row;
+            },
+            $this->connection->fetchAllAssociative(
+                'SELECT accion, despues, creadoEn FROM registro_auditoria WHERE tenantId = :tenant ORDER BY creadoEn DESC LIMIT 8',
+                ['tenant' => $tenantId]
+            )
         );
 
         $agendaProxima = $this->connection->fetchAllAssociative(
-            "SELECT 'ausencia' AS tipo, empleadoId, fechaInicio AS inicio, fechaFin AS fin, estado FROM solicitud_ausencia WHERE tenantId = :tenant AND fechaInicio >= :ahora AND fechaInicio <= :proximos ORDER BY fechaInicio ASC LIMIT 8",
+            "SELECT 'ausencia' AS tipo,
+                    COALESCE(t.nombre, sa.empleadoId) AS empleadoNombre,
+                    t.trabajadorId AS empleadoCodigo,
+                    sa.fechaInicio AS inicio, sa.fechaFin AS fin, sa.estado
+             FROM solicitud_ausencia sa
+             LEFT JOIN trabajador t ON t.id = sa.empleadoId AND t.tenantId = sa.tenantId
+             WHERE sa.tenantId = :tenant AND sa.fechaInicio >= :ahora AND sa.fechaInicio <= :proximos
+             ORDER BY sa.fechaInicio ASC LIMIT 8",
             ['tenant' => $tenantId, 'ahora' => $ahora, 'proximos' => $proximos14]
         );
 

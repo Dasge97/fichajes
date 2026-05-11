@@ -55,6 +55,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     public function getId(): string { return $this->id; }
     public function getTenantId(): string { return $this->tenantId; }
     public function getEmail(): string { return $this->email; }
+    public function setEmail(string $email): void { $this->email = $email; }
     public function getUserIdentifier(): string { return $this->email; }
     public function getRoles(): array
     {

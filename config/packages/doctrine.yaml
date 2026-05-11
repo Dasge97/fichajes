@@ -40,3 +40,8 @@ doctrine:
         type: attribute
         dir: '%kernel.project_dir%/src/Modulo/Trabajadores/Domain/Entity'
         prefix: 'App\Modulo\Trabajadores\Domain\Entity'
+      Plataforma:
+        is_bundle: false
+        type: attribute
+        dir: '%kernel.project_dir%/src/Modulo/Plataforma/Domain/Entity'
+        prefix: 'App\Modulo\Plataforma\Domain\Entity'

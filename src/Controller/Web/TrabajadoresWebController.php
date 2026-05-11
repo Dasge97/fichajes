@@ -71,7 +71,7 @@ class TrabajadoresWebController extends AbstractController
         if (!$this->isCsrfTokenValid('trabajador_cuenta_crear_'.$trabajadorId, (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Token CSRF invalido.');
 
-            return $this->redirectConFiltros($request);
+            return $this->redirectAlEditar($trabajadorId, $request);
         }
 
         try {
@@ -108,7 +108,7 @@ class TrabajadoresWebController extends AbstractController
             $this->addFlash('error', 'No se pudo crear la cuenta: '.$e->getMessage());
         }
 
-        return $this->redirectConFiltros($request);
+        return $this->redirectAlEditar($trabajadorId, $request);
     }
 
     #[Route('/{trabajadorId}/cuenta/estado', name: 'web_trabajadores_cuenta_estado', methods: ['POST'])]
@@ -118,7 +118,7 @@ class TrabajadoresWebController extends AbstractController
         if (!$this->isCsrfTokenValid('trabajador_cuenta_estado_'.$trabajadorId, (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Token CSRF invalido.');
 
-            return $this->redirectConFiltros($request);
+            return $this->redirectAlEditar($trabajadorId, $request);
         }
 
         try {
@@ -135,7 +135,7 @@ class TrabajadoresWebController extends AbstractController
             $this->addFlash('error', 'No se pudo cambiar estado de la cuenta: '.$e->getMessage());
         }
 
-        return $this->redirectConFiltros($request);
+        return $this->redirectAlEditar($trabajadorId, $request);
     }
 
     #[Route('/{trabajadorId}/cuenta/reset', name: 'web_trabajadores_cuenta_reset', methods: ['POST'])]
@@ -145,7 +145,7 @@ class TrabajadoresWebController extends AbstractController
         if (!$this->isCsrfTokenValid('trabajador_cuenta_reset_'.$trabajadorId, (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Token CSRF invalido.');
 
-            return $this->redirectConFiltros($request);
+            return $this->redirectAlEditar($trabajadorId, $request);
         }
 
         try {
@@ -168,7 +168,7 @@ class TrabajadoresWebController extends AbstractController
             $this->addFlash('error', 'No se pudo resetear password: '.$e->getMessage());
         }
 
-        return $this->redirectConFiltros($request);
+        return $this->redirectAlEditar($trabajadorId, $request);
     }
 
     #[Route('/{trabajadorId}/cuenta/rol', name: 'web_trabajadores_cuenta_rol', methods: ['POST'])]
@@ -178,7 +178,7 @@ class TrabajadoresWebController extends AbstractController
         if (!$this->isCsrfTokenValid('trabajador_cuenta_rol_'.$trabajadorId, (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Token CSRF invalido.');
 
-            return $this->redirectConFiltros($request);
+            return $this->redirectAlEditar($trabajadorId, $request);
         }
 
         try {
@@ -200,7 +200,7 @@ class TrabajadoresWebController extends AbstractController
             $this->addFlash('error', 'No se pudo gestionar rol: '.$e->getMessage());
         }
 
-        return $this->redirectConFiltros($request);
+        return $this->redirectAlEditar($trabajadorId, $request);
     }
 
     #[Route('/crear', name: 'web_trabajadores_crear', methods: ['POST'])]
@@ -271,6 +271,31 @@ class TrabajadoresWebController extends AbstractController
         return $this->redirectConFiltros($request);
     }
 
+    #[Route('/{trabajadorId}/ver', name: 'web_trabajadores_ver', methods: ['GET'])]
+    public function ver(string $trabajadorId, Request $request, ListarTrabajadores $servicio): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_SUPERVISOR');
+        $tenantId = $this->tenantContexto->obtenerTenantId();
+        $trabajador = null;
+        foreach ($servicio->ejecutar($tenantId) as $item) {
+            if ($item->getTrabajadorId() === $trabajadorId) {
+                $trabajador = $item;
+                break;
+            }
+        }
+        if ($trabajador === null) {
+            throw $this->createNotFoundException('Trabajador no encontrado');
+        }
+
+        $cuenta = $this->resolverDatosCuenta($tenantId, $trabajadorId);
+
+        return $this->render('web/trabajadores/ver.html.twig', [
+            'trabajador' => $trabajador,
+            'cuenta' => $cuenta,
+            'filtros' => $this->extraerFiltros($request),
+        ]);
+    }
+
     #[Route('/{trabajadorId}/editar', name: 'web_trabajadores_editar_form', methods: ['GET'])]
     public function editarForm(string $trabajadorId, Request $request, ListarTrabajadores $servicio): Response
     {
@@ -290,7 +315,9 @@ class TrabajadoresWebController extends AbstractController
         return $this->render('web/trabajadores/form.html.twig', [
             'modo' => 'editar',
             'trabajador' => $trabajador,
+            'cuenta' => $this->resolverDatosCuenta($tenantId, $trabajadorId),
             'filtros' => $this->extraerFiltros($request),
+            'puedeGestionarCuentas' => $this->puedeGestionarCuentas(),
         ]);
     }
 
@@ -315,7 +342,7 @@ class TrabajadoresWebController extends AbstractController
             $this->addFlash('error', 'No se pudo cambiar estado: '.$e->getMessage());
         }
 
-        return $this->redirectConFiltros($request);
+        return $this->redirectAlEditar($trabajadorId, $request);
     }
 
     /**
@@ -341,9 +368,37 @@ class TrabajadoresWebController extends AbstractController
         ]);
     }
 
+    private function redirectAlEditar(string $trabajadorId, Request $request): RedirectResponse
+    {
+        return $this->redirectToRoute('web_trabajadores_editar_form', [
+            'trabajadorId' => $trabajadorId,
+            'q' => trim((string) $request->request->get('q', '')),
+            'estado' => (string) $request->request->get('estado', ListarTrabajadores::ESTADO_TODOS),
+            'pagina' => max(1, (int) $request->request->get('pagina', 1)),
+            'tamano' => (int) $request->request->get('tamano', ListarTrabajadores::TAMANOS_PERMITIDOS[0]),
+        ]);
+    }
+
+    /** @return array{tieneCuenta: bool, activo: bool|null, roles: string[]} */
+    private function resolverDatosCuenta(string $tenantId, string $trabajadorId): array
+    {
+        $usuario = $this->resolverUsuarioTrabajador($tenantId, $trabajadorId);
+        if (!$usuario instanceof Usuario) {
+            return ['tieneCuenta' => false, 'activo' => null, 'roles' => []];
+        }
+
+        return [
+            'tieneCuenta' => true,
+            'activo' => $usuario->estaActivo(),
+            'roles' => $usuario->getCodigosRolTenant(),
+        ];
+    }
+
     private function puedeGestionarCuentas(): bool
     {
-        $this->denyAccessUnlessGranted('ROLE_SUPERVISOR');
+        if (!$this->isGranted('ROLE_SUPERVISOR')) {
+            return false;
+        }
         $usuario = $this->getUser();
         if (!$usuario instanceof Usuario) {
             return false;

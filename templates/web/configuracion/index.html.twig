@@ -1,0 +1,235 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Configuración — Fichajes{% endblock %}
+
+{% block body %}
+<div class="mb-6">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+        <a href="{{ path('app_dashboard') }}" class="hover:text-gray-600 transition-colors">Inicio</a>
+        <i class="ti ti-chevron-right text-gray-300" style="font-size:.65rem;"></i>
+        <span>Configuración</span>
+    </p>
+    <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <i class="ti ti-settings text-blue-500"></i>Configuración del sistema
+    </h1>
+</div>
+
+{# ── Personalización ── #}
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-5">
+    <div class="px-5 py-4 border-b border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+            <i class="ti ti-palette text-gray-400"></i>Personalización
+        </h3>
+    </div>
+    <div class="p-5">
+        <form method="post" action="{{ path('app_configuracion_guardar') }}" class="space-y-5">
+            <input type="hidden" name="_token" value="{{ csrf_token('configuracion_guardar') }}">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre de la empresa</label>
+                    <input class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                           name="empresa_nombre" value="{{ ajustes.empresa_nombre|default('') }}" placeholder="Mi Empresa S.L.">
+                    <p class="mt-1 text-xs text-gray-400">Aparece en la barra lateral.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">URL del logotipo</label>
+                    <input class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                           name="empresa_logo" type="url" value="{{ ajustes.empresa_logo|default('') }}" placeholder="https://miempresa.com/logo.png">
+                    <p class="mt-1 text-xs text-gray-400">Imagen cuadrada, mín. 32×32 px recomendado.</p>
+                    {% if ajustes.empresa_logo is defined and ajustes.empresa_logo %}
+                        <img src="{{ ajustes.empresa_logo }}" alt="Logo actual"
+                             class="mt-2 w-10 h-10 rounded-lg object-contain border border-gray-200 bg-gray-50">
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Zona horaria</label>
+                    <select class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                            name="zona_horaria">
+                        {% set zonas = {
+                            'Europe/Madrid': 'Europe/Madrid (ES)',
+                            'Europe/Lisbon': 'Europe/Lisbon (PT)',
+                            'Europe/Paris': 'Europe/Paris (FR)',
+                            'Europe/Berlin': 'Europe/Berlin (DE)',
+                            'Europe/London': 'Europe/London (UK)',
+                            'Europe/Rome': 'Europe/Rome (IT)',
+                            'America/Mexico_City': 'America/Mexico City',
+                            'America/Bogota': 'America/Bogotá',
+                            'America/Argentina/Buenos_Aires': 'America/Buenos Aires',
+                            'America/Santiago': 'America/Santiago',
+                            'America/New_York': 'America/New York',
+                            'UTC': 'UTC'
+                        } %}
+                        {% set zonaActual = ajustes.zona_horaria|default('Europe/Madrid') %}
+                        {% for valor, etiqueta in zonas %}
+                            <option value="{{ valor }}" {{ zonaActual == valor ? 'selected' : '' }}>{{ etiqueta }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-xs text-gray-400">Usada para mostrar fechas y horas.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Color primario</label>
+                    <div class="flex items-center gap-2">
+                        <input class="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer p-0.5"
+                               type="color" name="color_primario"
+                               value="{{ ajustes.color_primario|default('#2563eb') }}"
+                               id="inputColorPrimario">
+                        <input class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                               type="text" id="textoColorPrimario"
+                               value="{{ ajustes.color_primario|default('#2563eb') }}"
+                               placeholder="#2563eb" maxlength="7"
+                               oninput="sincronizarColor('primario', this.value)">
+                    </div>
+                    <p class="mt-1 text-xs text-gray-400">Botones, enlaces activos y acentos.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Color de la barra lateral</label>
+                    <div class="flex items-center gap-2">
+                        <input class="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer p-0.5"
+                               type="color" name="color_sidebar"
+                               value="{{ ajustes.color_sidebar|default('#0f172a') }}"
+                               id="inputColorSidebar">
+                        <input class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                               type="text" id="textoColorSidebar"
+                               value="{{ ajustes.color_sidebar|default('#0f172a') }}"
+                               placeholder="#0f172a" maxlength="7"
+                               oninput="sincronizarColor('sidebar', this.value)">
+                    </div>
+                    <p class="mt-1 text-xs text-gray-400">Fondo del menú lateral.</p>
+                </div>
+
+            </div>
+
+            <div class="pt-2 flex items-center gap-3">
+                <button class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                    <i class="ti ti-device-floppy"></i>Guardar personalización
+                </button>
+                <a href="{{ path('app_configuracion') }}"
+                   class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                    <i class="ti ti-refresh"></i>Descartar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# ── Tenant + Roles ── #}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <i class="ti ti-building text-gray-400"></i>Tenant activo
+            </h3>
+        </div>
+        <div class="p-5">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Tenant ID</p>
+            <span class="font-mono text-lg font-bold text-blue-600">{{ tenantId }}</span>
+        </div>
+    </div>
+
+    <div class="md:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <i class="ti ti-shield text-gray-400"></i>Roles del sistema
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Código</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Descripción</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                {% for r in roles %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-5 py-3 font-mono text-xs text-blue-600">{{ r.codigo }}</td>
+                        <td class="px-5 py-3 font-medium text-gray-900">{{ r.nombre }}</td>
+                        <td class="px-5 py-3 text-xs text-gray-500">{{ r.descripcion ?: '—' }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="px-5 py-8 text-center text-gray-400">Sin roles definidos.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{# ── Usuarios ── #}
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+            <i class="ti ti-users text-gray-400"></i>Usuarios del sistema
+        </h3>
+        <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600">{{ usuarios|length }}</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Roles asignados</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+            {% for u in usuarios %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-5 py-3 font-medium text-gray-900">{{ u.email }}</td>
+                    <td class="px-5 py-3">
+                        <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {{ u.activo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500' }}">
+                            <i class="ti ti-{{ u.activo ? 'circle-check' : 'circle-x' }} mr-1"></i>
+                            {{ u.activo ? 'activo' : 'inactivo' }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-3">
+                        {% if u.roles %}
+                            <div class="flex flex-wrap gap-1">
+                            {% for rol in u.roles|split(',') %}
+                                <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">{{ rol }}</span>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-gray-300">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-5 py-3 font-mono text-xs text-gray-400">{{ u.id|slice(0, 8) }}…</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="px-5 py-10 text-center text-gray-400">
+                        <i class="ti ti-users-off text-3xl block mb-2"></i>Sin usuarios.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function sincronizarColor(tipo, hex) {
+    if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+        if (tipo === 'primario') document.getElementById('inputColorPrimario').value = hex;
+        else document.getElementById('inputColorSidebar').value = hex;
+    }
+}
+document.getElementById('inputColorPrimario').addEventListener('input', function() {
+    document.getElementById('textoColorPrimario').value = this.value;
+});
+document.getElementById('inputColorSidebar').addEventListener('input', function() {
+    document.getElementById('textoColorSidebar').value = this.value;
+});
+</script>
+{% endblock %}

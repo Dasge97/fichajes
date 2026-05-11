@@ -27,18 +27,23 @@ class FichajesWebController extends AbstractController
         $q = trim((string) $request->query->get('q', ''));
         $tamano = max(10, min(50, (int) $request->query->get('tamano', 20)));
         $pagina = max(1, (int) $request->query->get('pagina', 1));
-        $where = ' WHERE tenantId = :tenant';
+        $where = ' FROM evento_fichaje ef
+            LEFT JOIN trabajador t ON t.id = ef.empleadoId AND t.tenantId = ef.tenantId
+            WHERE ef.tenantId = :tenant';
         $params = ['tenant' => $tenantId];
         if ($q !== '') {
-            $where .= ' AND (empleadoId LIKE :q OR tipo LIKE :q OR estadoCumplimiento LIKE :q)';
+            $where .= ' AND (t.nombre LIKE :q OR t.trabajadorId LIKE :q OR ef.tipo LIKE :q OR ef.estadoCumplimiento LIKE :q)';
             $params['q'] = '%'.$q.'%';
         }
-        $total = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM evento_fichaje'.$where, $params);
+        $total = (int) $this->connection->fetchOne('SELECT COUNT(*)'.$where, $params);
         $totalPaginas = max(1, (int) ceil($total / $tamano));
         $pagina = min($pagina, $totalPaginas);
         $offset = ($pagina - 1) * $tamano;
         $eventos = $this->connection->fetchAllAssociative(
-            'SELECT empleadoId, tipo, ocurridoEn, estadoCumplimiento, motivoDesvio FROM evento_fichaje'.$where.' ORDER BY ocurridoEn DESC LIMIT '.$tamano.' OFFSET '.$offset,
+            'SELECT ef.tipo, ef.ocurridoEn, ef.estadoCumplimiento, ef.motivoDesvio,
+                    COALESCE(t.nombre, ef.empleadoId) AS empleadoNombre,
+                    t.trabajadorId AS empleadoCodigo'
+            .$where.' ORDER BY ef.ocurridoEn DESC LIMIT '.$tamano.' OFFSET '.$offset,
             $params
         );
         $trabajadores = $this->connection->fetchAllAssociative(

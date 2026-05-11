@@ -1,17 +1,13 @@
-<nav aria-label="Paginación" class="mt-3">
-    <ul class="pagination pagination-sm mb-0">
-        <li class="page-item {{ paginacion.pagina <= 1 ? 'disabled' : '' }}">
-            <a class="page-link" href="{{ path(ruta, query|merge({pagina: paginacion.pagina - 1})) }}">
-                <i class="ti ti-chevron-left"></i>
-            </a>
-        </li>
-        <li class="page-item disabled">
-            <span class="page-link text-secondary">{{ paginacion.pagina }} / {{ paginacion.totalPaginas }}</span>
-        </li>
-        <li class="page-item {{ paginacion.pagina >= paginacion.totalPaginas ? 'disabled' : '' }}">
-            <a class="page-link" href="{{ path(ruta, query|merge({pagina: paginacion.pagina + 1})) }}">
-                <i class="ti ti-chevron-right"></i>
-            </a>
-        </li>
-    </ul>
+<nav class="flex items-center gap-1" aria-label="Paginación">
+    <a href="{{ paginacion.pagina <= 1 ? '#' : path(ruta, query|merge({pagina: paginacion.pagina - 1})) }}"
+       class="inline-flex items-center justify-center w-8 h-8 rounded-lg border text-sm transition-colors {{ paginacion.pagina <= 1 ? 'border-gray-200 text-gray-300 pointer-events-none' : 'border-gray-300 text-gray-600 hover:bg-gray-50' }}">
+        <i class="ti ti-chevron-left"></i>
+    </a>
+    <span class="px-3 py-1 text-sm text-gray-500 select-none">
+        {{ paginacion.pagina }} / {{ paginacion.totalPaginas }}
+    </span>
+    <a href="{{ paginacion.pagina >= paginacion.totalPaginas ? '#' : path(ruta, query|merge({pagina: paginacion.pagina + 1})) }}"
+       class="inline-flex items-center justify-center w-8 h-8 rounded-lg border text-sm transition-colors {{ paginacion.pagina >= paginacion.totalPaginas ? 'border-gray-200 text-gray-300 pointer-events-none' : 'border-gray-300 text-gray-600 hover:bg-gray-50' }}">
+        <i class="ti ti-chevron-right"></i>
+    </a>
 </nav>

@@ -2,127 +2,197 @@
 <html lang="es">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>{% block title %}Fichajes{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/dist/tabler-icons.min.css">
+    <style>
+        :root {
+            --c-brand:   {{ appConfig('color_primario',  '#2563eb') }};
+            --c-sidebar: {{ appConfig('color_sidebar',   '#0f172a') }};
+        }
+        .bg-blue-600                    { background-color: var(--c-brand) !important }
+        .hover\:bg-blue-700:hover       { background-color: color-mix(in srgb, var(--c-brand) 83%, #000) !important }
+        .bg-blue-50                     { background-color: color-mix(in srgb, var(--c-brand) 8%,  #fff) !important }
+        .hover\:bg-blue-50:hover        { background-color: color-mix(in srgb, var(--c-brand) 6%,  #fff) !important }
+        .bg-blue-100                    { background-color: color-mix(in srgb, var(--c-brand) 15%, #fff) !important }
+        .hover\:bg-blue-100:hover       { background-color: color-mix(in srgb, var(--c-brand) 15%, #fff) !important }
+        .text-blue-500, .text-blue-600  { color: var(--c-brand) !important }
+        .text-blue-800                  { color: color-mix(in srgb, var(--c-brand) 70%, #000) !important }
+        .hover\:text-blue-800:hover     { color: color-mix(in srgb, var(--c-brand) 70%, #000) !important }
+        .border-blue-600                { border-color: var(--c-brand) !important }
+        .border-blue-200                { border-color: color-mix(in srgb, var(--c-brand) 25%, #fff) !important }
+        .focus\:border-blue-500:focus   { border-color: var(--c-brand) !important }
+        .focus\:ring-blue-500           { --tw-ring-color: var(--c-brand) !important }
+    </style>
     {% block stylesheets %}{% endblock %}
 </head>
-<body class="antialiased">
-<div class="wrapper">
+<body class="bg-gray-50 antialiased font-sans">
 
-    <header class="navbar navbar-expand-md navbar-dark bg-dark d-print-none sticky-top">
-        <div class="container-fluid">
-            <a href="{{ path('app_dashboard') }}" class="navbar-brand navbar-brand-autodark">
-                <span class="fw-bold fs-4">Fichajes</span>
+{% if app.user %}
+
+{# ─── Sidebar ────────────────────────────────────────────────────────────── #}
+<aside id="sidebar"
+       class="fixed top-0 left-0 z-40 w-60 h-screen -translate-x-full transition-transform md:translate-x-0"
+       aria-label="Navegación principal">
+    <div class="flex flex-col h-full border-r border-black/20" style="background-color: var(--c-sidebar)">
+
+        {# Brand #}
+        <a href="{{ path('app_dashboard') }}" class="flex items-center gap-2.5 px-4 py-5 border-b border-white/10">
+            {% if appConfig('empresa_logo') %}
+                <img src="{{ appConfig('empresa_logo') }}" alt="Logo"
+                     class="w-8 h-8 rounded-lg object-contain bg-white/10">
+            {% else %}
+                <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white text-sm flex-shrink-0">
+                    <i class="ti ti-clock-record"></i>
+                </span>
+            {% endif %}
+            <span class="text-base font-bold text-white tracking-tight truncate">
+                {{ appConfig('empresa_nombre', 'Fichajes') }}
+            </span>
+        </a>
+
+        {# Nav #}
+        {% set ruta = app.request.attributes.get('_route') %}
+        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+            <a href="{{ path('app_dashboard') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ ruta == 'app_dashboard' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="ti ti-layout-dashboard w-4 text-center"></i>Dashboard
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navPrincipal">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navPrincipal">
-                {% if app.user %}
-                    {% set rutaActual = app.request.attributes.get('_route') %}
-                    <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                        <li class="nav-item">
-                            <a class="nav-link {{ rutaActual starts with 'web_herramienta_fichaje_kiosko' ? 'active' : '' }}" href="{{ path('web_herramienta_fichaje_kiosko') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-device-tablet"></i></span>
-                                <span class="nav-link-title">Kiosco</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ rutaActual starts with 'web_fichajes_' ? 'active' : '' }}" href="{{ path('web_fichajes_index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-clock"></i></span>
-                                <span class="nav-link-title">Fichajes</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ rutaActual starts with 'web_horarios_' ? 'active' : '' }}" href="{{ path('web_horarios_index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-calendar-event"></i></span>
-                                <span class="nav-link-title">Horarios</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ rutaActual starts with 'web_ausencias_' ? 'active' : '' }}" href="{{ path('web_ausencias_index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-beach"></i></span>
-                                <span class="nav-link-title">Ausencias</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ rutaActual starts with 'web_trabajadores_' ? 'active' : '' }}" href="{{ path('web_trabajadores_index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-users"></i></span>
-                                <span class="nav-link-title">Trabajadores</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ rutaActual starts with 'web_correcciones_' ? 'active' : '' }}" href="{{ path('web_correcciones_index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-pencil"></i></span>
-                                <span class="nav-link-title">Correcciones</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ rutaActual starts with 'web_auditoria_' ? 'active' : '' }}" href="{{ path('web_auditoria_index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-list-search"></i></span>
-                                <span class="nav-link-title">Auditoría</span>
-                            </a>
-                        </li>
-                    </ul>
-                {% endif %}
-                <div class="d-flex align-items-center gap-3 ms-auto">
-                    {% if app.user %}
-                        <span class="badge bg-azure-lt text-azure fw-semibold">
-                            <i class="ti ti-building me-1"></i>{{ app.user.tenantId }}
-                        </span>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link d-flex align-items-center gap-2 text-white px-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="avatar avatar-sm" style="background:rgba(255,255,255,.15); font-size:.75rem;">
-                                    {{ app.user.userIdentifier|first|upper }}
-                                </span>
-                                <span class="d-none d-lg-inline small">{{ app.user.userIdentifier }}</span>
-                                <i class="ti ti-chevron-down small"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end shadow-sm">
-                                <a href="{{ path('app_logout') }}" class="dropdown-item text-danger">
-                                    <i class="ti ti-logout me-2"></i>Cerrar sesión
-                                </a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <a href="{{ path('app_login') }}" class="btn btn-outline-light btn-sm">Entrar</a>
-                    {% endif %}
+            <a href="{{ path('web_herramienta_fichaje_kiosko') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ ruta starts with 'web_herramienta_fichaje' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="ti ti-device-tablet w-4 text-center"></i>Kiosco
+            </a>
+            <a href="{{ path('web_fichajes_index') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ ruta starts with 'web_fichajes_' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="ti ti-clock w-4 text-center"></i>Fichajes
+            </a>
+            <a href="{{ path('web_horarios_index') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ ruta starts with 'web_horarios_' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="ti ti-calendar-event w-4 text-center"></i>Horarios
+            </a>
+            <a href="{{ path('web_ausencias_index') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ ruta starts with 'web_ausencias_' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="ti ti-beach w-4 text-center"></i>Ausencias
+            </a>
+            <a href="{{ path('web_trabajadores_index') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ ruta starts with 'web_trabajadores_' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="ti ti-users w-4 text-center"></i>Trabajadores
+            </a>
+            <a href="{{ path('web_correcciones_index') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ ruta starts with 'web_correcciones_' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="ti ti-pencil w-4 text-center"></i>Correcciones
+            </a>
+            <a href="{{ path('web_auditoria_index') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ ruta starts with 'web_auditoria_' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="ti ti-list-search w-4 text-center"></i>Auditoría
+            </a>
+        </nav>
+
+        {# User #}
+        <div class="px-3 py-4 border-t border-white/10 space-y-0.5">
+            <div class="flex items-center gap-2.5 px-3 py-2 mb-1">
+                <div class="flex-shrink-0 w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                    {{ app.user.userIdentifier|first|upper }}
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xs font-semibold text-white truncate">{{ app.user.userIdentifier }}</div>
+                    <div class="text-xs text-slate-500 truncate">{{ app.user.tenantId }}</div>
                 </div>
             </div>
-        </div>
-    </header>
-
-    <div class="page-wrapper">
-        <div class="container-xl">
-
-            {% for tipo, mensajes in app.flashes %}
-                {% for mensaje in mensajes %}
-                    <div class="alert alert-{{ tipo == 'error' ? 'danger' : tipo }} alert-dismissible mt-3" role="alert">
-                        <div class="d-flex align-items-center">
-                            <div class="me-2">
-                                {% if tipo == 'success' %}<i class="ti ti-circle-check fs-4"></i>
-                                {% elseif tipo == 'error' or tipo == 'danger' %}<i class="ti ti-alert-circle fs-4"></i>
-                                {% elseif tipo == 'warning' %}<i class="ti ti-alert-triangle fs-4"></i>
-                                {% else %}<i class="ti ti-info-circle fs-4"></i>{% endif %}
-                            </div>
-                            <div>{{ mensaje }}</div>
-                        </div>
-                        <a class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></a>
-                    </div>
-                {% endfor %}
-            {% endfor %}
-
-            <div class="page-body">
-                {% block body %}{% endblock %}
-            </div>
-
+            <a href="{{ path('app_perfil') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i class="ti ti-user-circle w-4 text-center"></i>Mi perfil
+            </a>
+            {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_configuracion') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i class="ti ti-settings w-4 text-center"></i>Configuración
+            </a>
+            {% endif %}
+            <a href="{{ path('app_logout') }}"
+               class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-red-400 hover:bg-red-900/20 hover:text-red-300">
+                <i class="ti ti-logout w-4 text-center"></i>Cerrar sesión
+            </a>
         </div>
     </div>
+</aside>
 
+{# Hamburger mobile #}
+<button id="sidebarToggle" type="button" onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full')"
+        class="md:hidden fixed top-4 left-4 z-50 inline-flex items-center p-2 text-gray-500 rounded-lg bg-white shadow hover:bg-gray-100 focus:outline-none">
+    <i class="ti ti-menu-2 text-lg"></i>
+</button>
+{# Overlay mobile #}
+<div id="sidebarOverlay" class="hidden md:hidden fixed inset-0 z-30 bg-black/40"
+     onclick="document.getElementById('sidebar').classList.add('-translate-x-full'); this.classList.add('hidden')"></div>
+<script>
+    document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+        const overlay = document.getElementById('sidebarOverlay');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('-translate-x-full')) {
+            overlay.classList.remove('hidden');
+        } else {
+            overlay.classList.add('hidden');
+        }
+    });
+</script>
+
+{# Content #}
+<div class="md:ml-60 min-h-screen flex flex-col">
+    <main class="flex-1 p-6">
+
+        {# Flash messages #}
+        {% for tipo, mensajes in app.flashes %}
+            {% for mensaje in mensajes %}
+                {% if tipo == 'success' %}
+                <div class="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4 mb-5 text-green-800 text-sm" role="alert">
+                    <i class="ti ti-circle-check text-lg flex-shrink-0 mt-0.5"></i>
+                    <span class="flex-1">{{ mensaje }}</span>
+                    <button type="button" onclick="this.parentElement.remove()" class="flex-shrink-0 text-green-600 hover:text-green-800"><i class="ti ti-x text-sm"></i></button>
+                </div>
+                {% elseif tipo == 'warning' %}
+                <div class="flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4 mb-5 text-yellow-800 text-sm" role="alert">
+                    <i class="ti ti-alert-triangle text-lg flex-shrink-0 mt-0.5"></i>
+                    <span class="flex-1">{{ mensaje }}</span>
+                    <button type="button" onclick="this.parentElement.remove()" class="flex-shrink-0 text-yellow-600 hover:text-yellow-800"><i class="ti ti-x text-sm"></i></button>
+                </div>
+                {% elseif tipo == 'info' %}
+                <div class="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 mb-5 text-blue-800 text-sm" role="alert">
+                    <i class="ti ti-info-circle text-lg flex-shrink-0 mt-0.5"></i>
+                    <span class="flex-1">{{ mensaje }}</span>
+                    <button type="button" onclick="this.parentElement.remove()" class="flex-shrink-0 text-blue-600 hover:text-blue-800"><i class="ti ti-x text-sm"></i></button>
+                </div>
+                {% else %}
+                <div class="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 mb-5 text-red-800 text-sm" role="alert">
+                    <i class="ti ti-alert-circle text-lg flex-shrink-0 mt-0.5"></i>
+                    <span class="flex-1">{{ mensaje }}</span>
+                    <button type="button" onclick="this.parentElement.remove()" class="flex-shrink-0 text-red-600 hover:text-red-800"><i class="ti ti-x text-sm"></i></button>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+        {% block body %}{% endblock %}
+    </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/js/tabler.min.js"></script>
+
+{% else %}
+    {# Unauthenticated pages (login) #}
+    {{ block('body') }}
+{% endif %}
+
 {% block javascripts %}{% endblock %}
 </body>
 </html>

@@ -1,154 +1,108 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Panel operativo — Fichajes{% endblock %}
+{% block title %}Dashboard — Fichajes{% endblock %}
 
 {% block body %}
-<div class="page-header d-print-none pt-3 pb-2">
-    <div class="row align-items-center">
-        <div class="col">
-            <div class="page-pretitle text-secondary">Resumen del día</div>
-            <h2 class="page-title">Panel operativo</h2>
-        </div>
-    </div>
+<div class="mb-6">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Resumen del día</p>
+    <h1 class="text-2xl font-bold text-gray-900">Panel operativo</h1>
 </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-6 col-lg-4 col-xl-2">
-        <div class="card card-sm">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <span class="avatar bg-blue text-white"><i class="ti ti-clock-hour-3"></i></span>
-                    </div>
-                    <div class="col">
-                        <div class="fw-bold fs-3">{{ kpis.fichajesHoy }}</div>
-                        <div class="text-secondary small">Fichajes hoy</div>
-                    </div>
-                </div>
+{# KPIs #}
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+    {% set kpiItems = [
+        {valor: kpis.fichajesHoy,           label: 'Fichajes hoy',       icon: 'ti-clock-hour-3',    bg: 'bg-blue-100',   text: 'text-blue-600'},
+        {valor: kpis.fueraHorarioHoy,       label: 'Fuera horario',      icon: 'ti-alert-triangle',  bg: 'bg-yellow-100', text: 'text-yellow-600'},
+        {valor: kpis.ausenciasActivas,      label: 'Ausencias activas',  icon: 'ti-beach',           bg: 'bg-teal-100',   text: 'text-teal-600'},
+        {valor: kpis.correccionesPendientes,label: 'Correcciones pend.', icon: 'ti-pencil',          bg: 'bg-red-100',    text: 'text-red-600'},
+        {valor: kpis.horariosAsignados,     label: 'Horarios vigentes',  icon: 'ti-calendar-check',  bg: 'bg-green-100',  text: 'text-green-600'},
+        {valor: kpis.trabajadoresActivos,   label: 'Trabajadores activ.',icon: 'ti-users',           bg: 'bg-purple-100', text: 'text-purple-600'},
+    ] %}
+    {% for kpi in kpiItems %}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+        <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-9 h-9 rounded-lg {{ kpi.bg }} flex items-center justify-center {{ kpi.text }}">
+                <i class="ti {{ kpi.icon }}"></i>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-gray-900">{{ kpi.valor }}</div>
+                <div class="text-xs text-gray-400 leading-tight">{{ kpi.label }}</div>
             </div>
         </div>
     </div>
-    <div class="col-6 col-lg-4 col-xl-2">
-        <div class="card card-sm">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <span class="avatar bg-yellow text-white"><i class="ti ti-alert-triangle"></i></span>
-                    </div>
-                    <div class="col">
-                        <div class="fw-bold fs-3 text-yellow">{{ kpis.fueraHorarioHoy }}</div>
-                        <div class="text-secondary small">Fuera horario</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-lg-4 col-xl-2">
-        <div class="card card-sm">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <span class="avatar bg-teal text-white"><i class="ti ti-beach"></i></span>
-                    </div>
-                    <div class="col">
-                        <div class="fw-bold fs-3">{{ kpis.ausenciasActivas }}</div>
-                        <div class="text-secondary small">Ausencias activas</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-lg-4 col-xl-2">
-        <div class="card card-sm">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <span class="avatar bg-red text-white"><i class="ti ti-pencil"></i></span>
-                    </div>
-                    <div class="col">
-                        <div class="fw-bold fs-3 text-danger">{{ kpis.correccionesPendientes }}</div>
-                        <div class="text-secondary small">Correcciones pend.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-lg-4 col-xl-2">
-        <div class="card card-sm">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <span class="avatar bg-green text-white"><i class="ti ti-calendar-check"></i></span>
-                    </div>
-                    <div class="col">
-                        <div class="fw-bold fs-3">{{ kpis.horariosAsignados }}</div>
-                        <div class="text-secondary small">Horarios vigentes</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-lg-4 col-xl-2">
-        <div class="card card-sm">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <span class="avatar bg-purple text-white"><i class="ti ti-users"></i></span>
-                    </div>
-                    <div class="col">
-                        <div class="fw-bold fs-3">{{ kpis.trabajadoresActivos }}</div>
-                        <div class="text-secondary small">Trabajadores activos</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% endfor %}
 </div>
 
-<div class="row g-3">
-    <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header">
-                <h3 class="card-title"><i class="ti ti-activity me-2 text-secondary"></i>Actividad reciente</h3>
+{# Activity + Agenda #}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                <i class="ti ti-activity text-gray-400"></i>Actividad reciente
+            </h3>
+        </div>
+        {% set etiquetas = {
+            'fichaje.registrado':       'Fichaje registrado',
+            'ausencia.solicitada':      'Ausencia solicitada',
+            'ausencia.aprobada':        'Ausencia aprobada',
+            'ausencia.rechazada':       'Ausencia rechazada',
+            'ausencia.cancelada':       'Ausencia cancelada',
+            'correccion.solicitada':    'Corrección solicitada',
+            'correccion.aprobada':      'Corrección aprobada',
+            'horario.creado':           'Horario creado',
+            'horario.editado':          'Horario editado',
+            'asignacion.creada':        'Asignación creada',
+            'trabajador.creado':        'Trabajador creado',
+            'trabajador.editado':       'Trabajador editado',
+            'usuario.login':            'Inicio de sesión',
+            'usuario.clave_cambiada':   'Clave cambiada'
+        } %}
+        <div class="flex-1 divide-y divide-gray-50">
+            {% for item in actividadReciente %}
+            <div class="flex items-center justify-between px-5 py-3 gap-3">
+                <div class="min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">
+                        {{ etiquetas[item.accion] ?? item.accion }}
+                    </p>
+                    {% if item.contexto %}
+                        <p class="text-xs text-gray-400 truncate">{{ item.contexto }}</p>
+                    {% endif %}
+                </div>
+                <span class="text-xs text-gray-400 shrink-0">{{ item.creadoEn|date('d/m H:i') }}</span>
             </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    {% for item in actividadReciente %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-3">
-                            <span class="badge bg-dark text-white">{{ item.accion }}</span>
-                            <small class="text-secondary">{{ item.creadoEn }}</small>
-                        </li>
-                    {% else %}
-                        <li class="list-group-item text-secondary px-3 py-3">
-                            <i class="ti ti-mood-empty me-2"></i>Sin actividad reciente.
-                        </li>
-                    {% endfor %}
-                </ul>
+            {% else %}
+            <div class="px-5 py-6 text-sm text-gray-400 flex items-center gap-2">
+                <i class="ti ti-mood-empty"></i>Sin actividad reciente.
             </div>
+            {% endfor %}
         </div>
     </div>
-    <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header">
-                <h3 class="card-title"><i class="ti ti-calendar-time me-2 text-secondary"></i>Agenda próxima (14 días)</h3>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                <i class="ti ti-calendar-time text-gray-400"></i>Agenda próxima <span class="text-xs text-gray-400 font-normal">(14 días)</span>
+            </h3>
+        </div>
+        <div class="flex-1 divide-y divide-gray-50">
+            {% for item in agendaProxima %}
+            <div class="flex items-center justify-between px-5 py-3">
+                <div class="flex items-center gap-2">
+                    <span class="font-medium text-sm text-gray-900">
+                        {{ item.empleadoNombre }}
+                        {% if item.empleadoCodigo %}<span class="font-mono text-xs text-gray-400">({{ item.empleadoCodigo }})</span>{% endif %}
+                    </span>
+                    <span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-600">
+                        {{ item.tipo }}
+                    </span>
+                </div>
+                <span class="text-xs text-gray-400">{{ item.inicio|date('d/m') }} — {{ item.fin|date('d/m') }}</span>
             </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    {% for item in agendaProxima %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-3">
-                            <span>
-                                <strong>{{ item.empleadoId }}</strong>
-                                <span class="badge bg-secondary-lt text-secondary ms-2">{{ item.tipo }}</span>
-                            </span>
-                            <small class="text-secondary">{{ item.inicio }} — {{ item.fin }}</small>
-                        </li>
-                    {% else %}
-                        <li class="list-group-item text-secondary px-3 py-3">
-                            <i class="ti ti-calendar-off me-2"></i>Sin eventos futuros.
-                        </li>
-                    {% endfor %}
-                </ul>
+            {% else %}
+            <div class="px-5 py-6 text-sm text-gray-400 flex items-center gap-2">
+                <i class="ti ti-calendar-off"></i>Sin eventos futuros.
             </div>
+            {% endfor %}
         </div>
     </div>
 </div>

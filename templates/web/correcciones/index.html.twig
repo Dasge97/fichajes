@@ -1,103 +1,119 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Correcciones — Fichajes{% endblock %}
+{% block title %}Correcciones{% endblock %}
 
 {% block body %}
-<div class="page-header d-print-none pt-3 pb-2">
-    <div class="row align-items-center">
-        <div class="col">
-            <div class="page-pretitle text-secondary">Gestión</div>
-            <h2 class="page-title"><i class="ti ti-pencil me-2"></i>Correcciones</h2>
-        </div>
-        <div class="col-auto ms-auto">
-            <a class="btn btn-primary" href="{{ path('web_correcciones_nueva') }}">
-                <i class="ti ti-plus me-1"></i>Añadir corrección
-            </a>
-        </div>
+<div class="mb-6">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+        <a href="{{ path('app_dashboard') }}" class="hover:text-gray-600 transition-colors">Inicio</a>
+        <i class="ti ti-chevron-right text-gray-300" style="font-size:.65rem;"></i>
+        <span>Correcciones</span>
+    </p>
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="ti ti-pencil text-blue-500"></i>Correcciones
+        </h1>
+        <a href="{{ path('web_correcciones_nueva') }}"
+           class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+            <i class="ti ti-plus"></i>Añadir corrección
+        </a>
     </div>
 </div>
 
-<div class="card mb-3">
-    <div class="card-header">
-        <h3 class="card-title mb-0"><i class="ti ti-filter me-2 text-secondary"></i>Filtros</h3>
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
+    <div class="px-5 py-4 border-b border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2"><i class="ti ti-filter text-gray-400"></i>Filtros</h3>
     </div>
-    <div class="card-body">
-        <form method="get" class="row g-2 align-items-end">
-            <div class="col-md-5">
-                <input class="form-control" name="q" value="{{ filtros.q }}"
-                       placeholder="Buscar por evento o motivo">
+    <div class="p-5">
+        <form method="get" class="flex flex-wrap items-end gap-3">
+            <div class="flex-1 min-w-48">
+                <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                       name="q" value="{{ filtros.q }}" placeholder="Buscar por evento o motivo…">
             </div>
-            <div class="col-md-3">
-                <select class="form-select" name="estado">
+            <div class="min-w-40">
+                <select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" name="estado">
                     <option value="" {{ filtros.estado == '' ? 'selected' : '' }}>Todos los estados</option>
                     <option value="pendiente" {{ filtros.estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
                     <option value="aprobada" {{ filtros.estado == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
-            </div>
+            {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
             <input type="hidden" name="pagina" value="1">
-            <div class="col-md-2 d-flex gap-2">
-                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Filtrar</button>
-                <a class="btn btn-outline-secondary" href="{{ path('web_correcciones_index') }}"><i class="ti ti-x"></i></a>
-            </div>
+            <button class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                <i class="ti ti-search"></i>Filtrar
+            </button>
+            <a href="{{ path('web_correcciones_index') }}"
+               class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+                <i class="ti ti-x"></i>Limpiar
+            </a>
         </form>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title mb-0">Solicitudes de corrección</h3>
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-900">Solicitudes de corrección</h3>
     </div>
-    <div class="table-responsive">
-        <table class="table table-vcenter card-table">
-            <thead>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
-                    <th>Evento fichaje</th>
-                    <th>Estado</th>
-                    <th>Motivo</th>
-                    <th>Fecha corregida</th>
-                    <th class="text-end">Acciones</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Empleado / Evento</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Motivo</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha corregida</th>
+                    <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-100">
             {% for item in items %}
-                <tr>
-                    <td><code class="text-muted">{{ item.eventoFichajeId }}</code></td>
-                    <td>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-5 py-3">
+                        <span class="font-medium text-gray-900">{{ item.empleadoNombre }}</span>
+                        {% if item.empleadoCodigo %}
+                            <span class="font-mono text-xs text-gray-400">({{ item.empleadoCodigo }})</span>
+                        {% endif %}
+                        <div class="text-xs text-gray-400 mt-0.5">
+                            {{ item.eventoTipo }} &mdash; {{ item.eventoFecha|date('d/m/Y H:i') }}
+                        </div>
+                    </td>
+                    <td class="px-5 py-3">
                         {% if item.estado == 'aprobada' %}
-                            <span class="badge bg-success-lt text-success"><i class="ti ti-circle-check me-1"></i>Aprobada</span>
+                            <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+                                <i class="ti ti-circle-check mr-1"></i>Aprobada
+                            </span>
                         {% else %}
-                            <span class="badge bg-warning-lt text-warning"><i class="ti ti-clock me-1"></i>Pendiente</span>
+                            <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <i class="ti ti-clock mr-1"></i>Pendiente
+                            </span>
                         {% endif %}
                     </td>
-                    <td class="text-secondary">{{ item.motivo }}</td>
-                    <td class="text-secondary">{{ item.ocurridoEnCorregido ?: '—' }}</td>
-                    <td class="text-end">
+                    <td class="px-5 py-3 text-gray-600">{{ item.motivo }}</td>
+                    <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ item.ocurridoEnCorregido ?: '—' }}</td>
+                    <td class="px-5 py-3 text-right">
                         {% if is_granted('ROLE_SUPERVISOR') and item.estado == 'pendiente' %}
                             <form method="post" action="{{ path('web_correcciones_resolver', {id: item.id}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('correccion_resolver_' ~ item.id) }}">
-                                <button class="btn btn-sm btn-success">
-                                    <i class="ti ti-check me-1"></i>Resolver
+                                <button class="inline-flex items-center gap-1 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 transition-colors">
+                                    <i class="ti ti-check"></i>Resolver
                                 </button>
                             </form>
                         {% else %}
-                            <span class="text-secondary">—</span>
+                            <span class="text-gray-300">—</span>
                         {% endif %}
                     </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="5" class="text-center text-secondary py-4">
-                        <i class="ti ti-pencil-off fs-2 d-block mb-2"></i>Sin correcciones pendientes.
+                    <td colspan="5" class="px-5 py-12 text-center text-gray-400">
+                        <i class="ti ti-pencil-off text-3xl block mb-2"></i>Sin correcciones pendientes.
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
-    <div class="card-footer d-flex justify-content-end">
+    <div class="px-5 py-3 border-t border-gray-100 flex justify-end">
         {% include 'web/_paginacion.html.twig' with {ruta: 'web_correcciones_index', query: {q: filtros.q, estado: filtros.estado, tamano: filtros.tamano}, paginacion: paginacion} %}
     </div>
 </div>

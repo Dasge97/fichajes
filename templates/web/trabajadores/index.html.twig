@@ -1,199 +1,173 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Trabajadores — Fichajes{% endblock %}
+{% block title %}Trabajadores{% endblock %}
 
 {% block body %}
-<div class="page-header d-print-none pt-3 pb-2">
-    <div class="row align-items-center">
-        <div class="col">
-            <div class="page-pretitle text-secondary">Gestión</div>
-            <h2 class="page-title"><i class="ti ti-users me-2"></i>Trabajadores</h2>
-        </div>
+<div class="mb-6">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+        <a href="{{ path('app_dashboard') }}" class="hover:text-gray-600 transition-colors">Inicio</a>
+        <i class="ti ti-chevron-right text-gray-300" style="font-size:.65rem;"></i>
+        <span>Trabajadores</span>
+    </p>
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="ti ti-users text-blue-500"></i>Trabajadores
+        </h1>
         {% if is_granted('ROLE_SUPERVISOR') %}
-            <div class="col-auto ms-auto">
-                <a class="btn btn-primary" href="{{ path('web_trabajadores_nuevo', filtros) }}">
-                    <i class="ti ti-plus me-1"></i>Añadir trabajador
-                </a>
-            </div>
+        <a href="{{ path('web_trabajadores_nuevo', filtros) }}"
+           class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+            <i class="ti ti-plus"></i>Añadir trabajador
+        </a>
         {% endif %}
     </div>
 </div>
 
-<div class="card mb-3">
-    <div class="card-header">
-        <h3 class="card-title"><i class="ti ti-filter me-2 text-secondary"></i>Filtros</h3>
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
+    <div class="px-5 py-4 border-b border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2"><i class="ti ti-filter text-gray-400"></i>Filtros</h3>
     </div>
-    <div class="card-body">
-        <form method="get" action="{{ path('web_trabajadores_index') }}" class="row g-2 align-items-end">
-            <div class="col-md-4">
-                <input class="form-control" type="text" name="q" value="{{ filtros.q }}"
-                       placeholder="ID, nombre o email">
+    <div class="p-5">
+        <form method="get" action="{{ path('web_trabajadores_index') }}" class="flex flex-wrap items-end gap-3">
+            <div class="flex-1 min-w-48">
+                <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                       type="text" name="q" value="{{ filtros.q }}" placeholder="ID, nombre o email">
             </div>
-            <div class="col-md-3">
-                <select class="form-select" name="estado">
+            <div class="min-w-36">
+                <select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" name="estado">
                     <option value="todos" {{ filtros.estado == 'todos' ? 'selected' : '' }}>Todos</option>
                     <option value="activos" {{ filtros.estado == 'activos' ? 'selected' : '' }}>Activos</option>
                     <option value="inactivos" {{ filtros.estado == 'inactivos' ? 'selected' : '' }}>Inactivos</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
-            </div>
+            {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
             <input type="hidden" name="pagina" value="1">
-            <div class="col-md-3 d-flex gap-2">
-                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Aplicar</button>
-                <a class="btn btn-outline-secondary" href="{{ path('web_trabajadores_index') }}">
-                    <i class="ti ti-x"></i>
-                </a>
-            </div>
+            <button class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                <i class="ti ti-search"></i>Aplicar
+            </button>
+            <a href="{{ path('web_trabajadores_index') }}"
+               class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+                <i class="ti ti-x"></i>Limpiar
+            </a>
         </form>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="card-title mb-0">Listado</h3>
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-900">Listado</h3>
         {% set desde = paginacion.total > 0 ? ((paginacion.pagina - 1) * paginacion.tamano + 1) : 0 %}
-        {% set hastaEstimado = desde + trabajadores|length - 1 %}
-        {% set hasta = paginacion.total > 0 ? (hastaEstimado > paginacion.total ? paginacion.total : hastaEstimado) : 0 %}
-        <small class="text-secondary">{{ desde }}–{{ hasta }} de {{ paginacion.total }}</small>
+        {% set hastaEst = desde + trabajadores|length - 1 %}
+        {% set hasta = paginacion.total > 0 ? (hastaEst > paginacion.total ? paginacion.total : hastaEst) : 0 %}
+        <span class="text-xs text-gray-400">{{ desde }}–{{ hasta }} de {{ paginacion.total }}</span>
     </div>
-    <div class="table-responsive">
-        <table class="table table-vcenter card-table">
-            <thead>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Estado</th>
-                    <th>Cuenta web</th>
-                    <th>Roles</th>
-                    <th>Alta</th>
-                    <th class="text-end">Acciones</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cuenta web</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Roles</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Alta</th>
+                    <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-100">
             {% for item in trabajadores %}
-                <tr>
-                    {% set cuenta = cuentas[item.trabajadorId] ?? {tieneCuenta: false, activo: null, roles: []} %}
-                    <td><code class="text-muted">{{ item.trabajadorId }}</code></td>
-                    <td class="fw-medium">{{ item.nombre }}</td>
-                    <td class="text-secondary">{{ item.email ?: '—' }}</td>
-                    <td>
-                        <span class="badge {{ item.estaActivo ? 'bg-success-lt text-success' : 'bg-secondary-lt text-secondary' }}">
-                            <i class="ti ti-{{ item.estaActivo ? 'circle-check' : 'circle-x' }} me-1"></i>
+                {% set cuenta = cuentas[item.trabajadorId] ?? {tieneCuenta: false, activo: null, roles: []} %}
+                <tr class="hover:bg-gray-50 transition-colors align-top">
+                    <td class="px-5 py-3 font-mono text-xs text-gray-500">{{ item.trabajadorId }}</td>
+                    <td class="px-5 py-3 font-medium text-gray-900">{{ item.nombre }}</td>
+                    <td class="px-5 py-3 text-gray-500 text-xs">{{ item.email ?: '—' }}</td>
+                    <td class="px-5 py-3">
+                        <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {{ item.estaActivo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500' }}">
+                            <i class="ti ti-{{ item.estaActivo ? 'circle-check' : 'circle-x' }} mr-1"></i>
                             {{ item.estaActivo ? 'activo' : 'inactivo' }}
                         </span>
                     </td>
-                    <td>
+                    <td class="px-5 py-3">
                         {% if cuenta.tieneCuenta %}
-                            <span class="badge {{ cuenta.activo ? 'bg-success-lt text-success' : 'bg-secondary-lt text-secondary' }}">
+                            <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {{ cuenta.activo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500' }}">
                                 {{ cuenta.activo ? 'activa' : 'bloqueada' }}
                             </span>
                         {% else %}
-                            <span class="badge bg-light text-secondary">sin cuenta</span>
+                            <span class="text-xs text-gray-300">sin cuenta</span>
                         {% endif %}
                     </td>
-                    <td>
+                    <td class="px-5 py-3">
                         {% if cuenta.roles is not empty %}
-                            <small class="text-secondary">{{ cuenta.roles|join(', ') }}</small>
+                            <span class="text-xs text-gray-500">{{ cuenta.roles|join(', ') }}</span>
                         {% else %}
-                            <span class="text-secondary">—</span>
+                            <span class="text-gray-300">—</span>
                         {% endif %}
                     </td>
-                    <td class="text-secondary small">{{ item.fechaAlta|date('Y-m-d H:i') }}</td>
-                    <td class="text-end" style="white-space:nowrap; min-width:180px;">
+                    <td class="px-5 py-3 text-xs text-gray-400">{{ item.fechaAlta|date('d/m/Y') }}</td>
+                    <td class="px-5 py-3 text-right">
                         {% if is_granted('ROLE_SUPERVISOR') %}
-                            <div class="d-flex flex-column gap-1 align-items-end">
-                                <div class="d-flex gap-1">
-                                    <a class="btn btn-sm btn-outline-primary"
-                                       href="{{ path('web_trabajadores_editar_form', {trabajadorId: item.trabajadorId, q: filtros.q, estado: filtros.estado, pagina: filtros.pagina, tamano: filtros.tamano}) }}">
-                                        <i class="ti ti-pencil me-1"></i>Editar
-                                    </a>
-                                    <form method="post" action="{{ path('web_trabajadores_estado', {trabajadorId: item.trabajadorId}) }}" class="d-inline">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('trabajador_estado_' ~ item.trabajadorId) }}">
-                                        <input type="hidden" name="q" value="{{ filtros.q }}">
-                                        <input type="hidden" name="estado" value="{{ filtros.estado }}">
-                                        <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
-                                        <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-                                        <input type="hidden" name="activo" value="{{ item.estaActivo ? '0' : '1' }}">
-                                        <button class="btn btn-sm {{ item.estaActivo ? 'btn-outline-warning' : 'btn-outline-success' }}">
-                                            {{ item.estaActivo ? 'Desactivar' : 'Activar' }}
-                                        </button>
-                                    </form>
-                                </div>
-
-                                {% if puedeGestionarCuentas %}
-                                    {% if cuenta.tieneCuenta %}
-                                        <div class="d-flex gap-1">
-                                            <form method="post" action="{{ path('web_trabajadores_cuenta_estado', {trabajadorId: item.trabajadorId}) }}">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_estado_' ~ item.trabajadorId) }}">
-                                                <input type="hidden" name="q" value="{{ filtros.q }}">
-                                                <input type="hidden" name="estado" value="{{ filtros.estado }}">
-                                                <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
-                                                <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-                                                <input type="hidden" name="activo" value="{{ cuenta.activo ? '0' : '1' }}">
-                                                <button class="btn btn-sm btn-outline-{{ cuenta.activo ? 'warning' : 'success' }}">
-                                                    {{ cuenta.activo ? 'Bloquear web' : 'Activar web' }}
-                                                </button>
-                                            </form>
-                                        </div>
-                                        <form method="post" action="{{ path('web_trabajadores_cuenta_reset', {trabajadorId: item.trabajadorId}) }}" class="d-flex flex-column gap-1">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_reset_' ~ item.trabajadorId) }}">
-                                            <input type="hidden" name="q" value="{{ filtros.q }}">
-                                            <input type="hidden" name="estado" value="{{ filtros.estado }}">
-                                            <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
-                                            <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-                                            <input class="form-control form-control-sm" name="token" type="text" placeholder="Token reset (vacío para emitir)">
-                                            <input class="form-control form-control-sm" name="password" type="password" minlength="12" placeholder="Nueva contraseña web">
-                                            <button class="btn btn-sm btn-outline-danger">Confirmar reset</button>
-                                        </form>
-                                        <form method="post" action="{{ path('web_trabajadores_cuenta_rol', {trabajadorId: item.trabajadorId}) }}" class="d-flex gap-1">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_rol_' ~ item.trabajadorId) }}">
-                                            <input type="hidden" name="q" value="{{ filtros.q }}">
-                                            <input type="hidden" name="estado" value="{{ filtros.estado }}">
-                                            <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
-                                            <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-                                            <select class="form-select form-select-sm" name="rol">
-                                                <option value="trabajador">trabajador</option>
-                                                <option value="responsable_equipo">responsable_equipo</option>
-                                            </select>
-                                            <button class="btn btn-sm btn-outline-success" name="accionRol" value="asignar" title="Asignar">+</button>
-                                            <button class="btn btn-sm btn-outline-warning" name="accionRol" value="revocar" title="Revocar">−</button>
-                                        </form>
-                                    {% else %}
-                                        <form method="post" action="{{ path('web_trabajadores_cuenta_crear', {trabajadorId: item.trabajadorId}) }}" class="d-flex flex-column gap-1">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('trabajador_cuenta_crear_' ~ item.trabajadorId) }}">
-                                            <input type="hidden" name="q" value="{{ filtros.q }}">
-                                            <input type="hidden" name="estado" value="{{ filtros.estado }}">
-                                            <input type="hidden" name="pagina" value="{{ filtros.pagina }}">
-                                            <input type="hidden" name="tamano" value="{{ filtros.tamano }}">
-                                            <input class="form-control form-control-sm" name="email" type="email" placeholder="email@empresa.com (opcional)">
-                                            <input class="form-control form-control-sm" name="password" type="password" minlength="12" placeholder="Contraseña web inicial" required>
-                                            <button class="btn btn-sm btn-outline-success">
-                                                <i class="ti ti-user-plus me-1"></i>Crear cuenta
-                                            </button>
-                                        </form>
-                                    {% endif %}
-                                {% endif %}
+                        <div class="relative inline-block" id="menu-{{ item.trabajadorId }}">
+                            <button type="button"
+                                    onclick="toggleDropdown('{{ item.trabajadorId }}')"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+                                Acciones <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div id="dropdown-{{ item.trabajadorId }}"
+                                 class="hidden absolute right-0 z-50 w-36 rounded-lg border border-gray-200 bg-white shadow-lg py-1">
+                                <a href="{{ path('web_trabajadores_ver', {trabajadorId: item.trabajadorId, q: filtros.q, estado: filtros.estado, pagina: filtros.pagina, tamano: filtros.tamano}) }}"
+                                   class="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50">
+                                    <i class="ti ti-eye text-gray-400"></i>Ver
+                                </a>
+                                <a href="{{ path('web_trabajadores_editar_form', {trabajadorId: item.trabajadorId, q: filtros.q, estado: filtros.estado, pagina: filtros.pagina, tamano: filtros.tamano}) }}"
+                                   class="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50">
+                                    <i class="ti ti-pencil text-gray-400"></i>Editar
+                                </a>
                             </div>
+                        </div>
                         {% else %}
-                            <span class="text-secondary small">Solo consulta</span>
+                            <span class="text-xs text-gray-300">Solo consulta</span>
                         {% endif %}
                     </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="8" class="text-center text-secondary py-4">
-                        <i class="ti ti-users-off fs-2 d-block mb-2"></i>Sin trabajadores.
+                    <td colspan="8" class="px-5 py-12 text-center text-gray-400">
+                        <i class="ti ti-users-off text-3xl block mb-2"></i>Sin trabajadores.
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
-    <div class="card-footer d-flex justify-content-end">
+    <div class="px-5 py-3 border-t border-gray-100 flex justify-end">
         {% include 'web/_paginacion.html.twig' with {ruta: 'web_trabajadores_index', query: {q: filtros.q, estado: filtros.estado, tamano: filtros.tamano}, paginacion: paginacion} %}
     </div>
 </div>
+
+{% block javascripts %}
+<script>
+function toggleDropdown(id) {
+    const dropdown = document.getElementById('dropdown-' + id);
+    const btn = document.querySelector('#menu-' + id + ' button');
+    const isHidden = dropdown.classList.contains('hidden');
+    document.querySelectorAll('[id^="dropdown-"]').forEach(function(el) { el.classList.add('hidden'); });
+    if (!isHidden) return;
+    dropdown.classList.remove('hidden');
+    const rect = btn.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if (spaceBelow < 90) {
+        dropdown.style.bottom = btn.offsetHeight + 4 + 'px';
+        dropdown.style.top = 'auto';
+    } else {
+        dropdown.style.top = btn.offsetHeight + 4 + 'px';
+        dropdown.style.bottom = 'auto';
+    }
+}
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('[id^="menu-"]')) {
+        document.querySelectorAll('[id^="dropdown-"]').forEach(function(el) { el.classList.add('hidden'); });
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}

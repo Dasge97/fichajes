@@ -3,46 +3,59 @@
 {% block title %}Acceso — Fichajes{% endblock %}
 
 {% block body %}
-<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
-    <div class="col-md-5 col-lg-4 col-xl-3">
-        <div class="text-center mb-4">
-            <h1 class="fw-bold fs-2">Fichajes</h1>
-            <p class="text-secondary">Control horario de equipos</p>
-        </div>
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h2 class="card-title text-center mb-4">Iniciar sesión</h2>
-
-                {% if error %}
-                    <div class="alert alert-danger alert-dismissible" role="alert">
-                        <i class="ti ti-alert-circle me-2"></i>{{ error.messageKey }}
-                        <a class="btn-close" data-bs-dismiss="alert"></a>
-                    </div>
-                {% endif %}
-
-                <form method="post" class="vstack gap-3">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-                    <div>
-                        <label class="form-label" for="username">Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ti ti-mail"></i></span>
-                            <input id="username" class="form-control" type="email" name="_username"
-                                   value="{{ ultimo_usuario }}" autocomplete="email" required autofocus>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="form-label" for="password">Contraseña</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ti ti-lock"></i></span>
-                            <input id="password" class="form-control" type="password" name="_password"
-                                   autocomplete="current-password" required>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary w-100" type="submit">
-                        <i class="ti ti-login me-1"></i>Entrar
-                    </button>
-                </form>
+<div class="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 text-white text-2xl mb-4">
+                <i class="ti ti-clock-record"></i>
             </div>
+            <h1 class="text-2xl font-bold text-white">Fichajes</h1>
+            <p class="text-slate-400 text-sm mt-1">Control horario de equipos</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Iniciar sesión</h2>
+
+            {% if error %}
+                <div class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 mb-5 text-red-700 text-sm">
+                    <i class="ti ti-alert-circle flex-shrink-0"></i>
+                    <span>{{ error.messageKey }}</span>
+                </div>
+            {% endif %}
+
+            <form method="post" class="space-y-4">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5" for="username">Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <i class="ti ti-mail text-sm"></i>
+                        </div>
+                        <input id="username" type="email" name="_username" value="{{ ultimo_usuario }}"
+                               autocomplete="email" required autofocus
+                               class="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5" for="password">Contraseña</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <i class="ti ti-lock text-sm"></i>
+                        </div>
+                        <input id="password" type="password" name="_password" autocomplete="current-password" required
+                               class="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input id="remember_me" type="checkbox" name="_remember_me"
+                           class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    <label for="remember_me" class="text-sm text-gray-500">Recordarme 7 días</label>
+                </div>
+                <button type="submit"
+                        class="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors mt-2">
+                    <i class="ti ti-login"></i>Entrar
+                </button>
+            </form>
         </div>
     </div>
 </div>

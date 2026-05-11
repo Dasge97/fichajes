@@ -1,5 +1,5 @@
-<select class="form-select" name="{{ nombre }}">
-    <option value="10" {{ valor == 10 ? 'selected' : '' }}>10</option>
-    <option value="20" {{ valor == 20 ? 'selected' : '' }}>20</option>
-    <option value="50" {{ valor == 50 ? 'selected' : '' }}>50</option>
+<select name="{{ nombre }}" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+    <option value="10" {{ valor == 10 ? 'selected' : '' }}>10 / pág.</option>
+    <option value="20" {{ valor == 20 ? 'selected' : '' }}>20 / pág.</option>
+    <option value="50" {{ valor == 50 ? 'selected' : '' }}>50 / pág.</option>
 </select>

@@ -36,14 +36,16 @@ class AusenciasWebController extends AbstractController
         $tamano = max(10, min(50, (int) $request->query->get('tamano', 20)));
         $pagina = max(1, (int) $request->query->get('pagina', 1));
 
-        $sqlBase = ' FROM solicitud_ausencia WHERE tenantId = :tenant';
+        $sqlBase = ' FROM solicitud_ausencia sa
+            LEFT JOIN trabajador t ON t.id = sa.empleadoId AND t.tenantId = sa.tenantId
+            WHERE sa.tenantId = :tenant';
         $params = ['tenant' => $tenantId];
         if ($empleadoId !== '') {
-            $sqlBase .= ' AND empleadoId = :empleado';
-            $params['empleado'] = $empleadoId;
+            $sqlBase .= ' AND (t.nombre LIKE :empleado OR t.trabajadorId LIKE :empleado)';
+            $params['empleado'] = '%'.$empleadoId.'%';
         }
         if ($estado !== '') {
-            $sqlBase .= ' AND estado = :estado';
+            $sqlBase .= ' AND sa.estado = :estado';
             $params['estado'] = $estado;
         }
         $total = (int) $this->connection->fetchOne('SELECT COUNT(*)'.$sqlBase, $params);
@@ -51,9 +53,23 @@ class AusenciasWebController extends AbstractController
         $pagina = min($pagina, $totalPaginas);
         $offset = ($pagina - 1) * $tamano;
 
-        $items = $this->connection->fetchAllAssociative('SELECT id, empleadoId, tipo, fechaInicio, fechaFin, estado'.$sqlBase.' ORDER BY fechaInicio DESC LIMIT '.$tamano.' OFFSET '.$offset, $params);
+        $items = $this->connection->fetchAllAssociative(
+            'SELECT sa.id, sa.tipo, sa.fechaInicio, sa.fechaFin, sa.estado,
+                    COALESCE(t.nombre, sa.empleadoId) AS empleadoNombre,
+                    t.trabajadorId AS empleadoCodigo'
+            .$sqlBase.' ORDER BY sa.fechaInicio DESC LIMIT '.$tamano.' OFFSET '.$offset,
+            $params
+        );
         $trabajadores = $this->connection->fetchAllAssociative(
             'SELECT trabajadorId, nombre FROM trabajador WHERE tenantId = :tenant AND activo = 1 ORDER BY trabajadorId',
+            ['tenant' => $tenantId]
+        );
+        $calendarItems = $this->connection->fetchAllAssociative(
+            'SELECT sa.tipo, sa.fechaInicio, sa.fechaFin, sa.estado,
+                    COALESCE(t.nombre, sa.empleadoId) AS empleadoNombre
+             FROM solicitud_ausencia sa
+             LEFT JOIN trabajador t ON t.id = sa.empleadoId AND t.tenantId = sa.tenantId
+             WHERE sa.tenantId = :tenant ORDER BY sa.fechaInicio DESC LIMIT 500',
             ['tenant' => $tenantId]
         );
 
@@ -63,6 +79,7 @@ class AusenciasWebController extends AbstractController
             'trabajadores' => $trabajadores,
             'filtros' => ['estado' => $estado, 'tamano' => $tamano],
             'paginacion' => ['total' => $total, 'pagina' => $pagina, 'totalPaginas' => $totalPaginas],
+            'calendarItems' => $calendarItems,
         ]);
     }
 

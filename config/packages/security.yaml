@@ -2,6 +2,10 @@ security:
   password_hashers:
     Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
+  role_hierarchy:
+    ROLE_SUPERVISOR: ROLE_EMPLEADO
+    ROLE_ADMIN: [ROLE_SUPERVISOR, ROLE_EMPLEADO]
+
   providers:
     app_user_provider:
       entity:
@@ -20,6 +24,10 @@ security:
       form_login:
         login_path: app_login
         check_path: app_login
+      remember_me:
+        secret: '%kernel.secret%'
+        lifetime: 604800
+        path: /
       logout:
         path: app_logout
       json_login:

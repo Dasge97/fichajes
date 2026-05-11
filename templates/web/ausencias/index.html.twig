@@ -1,119 +1,203 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ausencias — Fichajes{% endblock %}
+{% block title %}Ausencias{% endblock %}
+
+{% block stylesheets %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+{% endblock %}
 
 {% block body %}
-<div class="page-header d-print-none pt-3 pb-2">
-    <div class="row align-items-center">
-        <div class="col">
-            <div class="page-pretitle text-secondary">Gestión</div>
-            <h2 class="page-title"><i class="ti ti-beach me-2"></i>Ausencias</h2>
-        </div>
-        <div class="col-auto ms-auto">
-            <a class="btn btn-primary" href="{{ path('web_ausencias_nueva') }}">
-                <i class="ti ti-plus me-1"></i>Añadir ausencia
-            </a>
-        </div>
+<div class="mb-6">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+        <a href="{{ path('app_dashboard') }}" class="hover:text-gray-600 transition-colors">Inicio</a>
+        <i class="ti ti-chevron-right text-gray-300" style="font-size:.65rem;"></i>
+        <span>Ausencias</span>
+    </p>
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="ti ti-beach text-blue-500"></i>Ausencias
+        </h1>
+        <a href="{{ path('web_ausencias_nueva') }}"
+           class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+            <i class="ti ti-plus"></i>Añadir ausencia
+        </a>
     </div>
 </div>
 
-<div class="card mb-3">
-    <div class="card-header">
-        <h3 class="card-title mb-0"><i class="ti ti-filter me-2 text-secondary"></i>Buscar solicitudes</h3>
-    </div>
-    <div class="card-body">
-        <form method="get" class="row g-2 align-items-end">
-            <div class="col-md-4">
-                <input class="form-control" name="empleadoId" value="{{ filtroEmpleado }}"
-                       placeholder="Filtrar por empleado">
-            </div>
-            <div class="col-md-3">
-                <select class="form-select" name="estado">
-                    <option value="" {{ filtros.estado == '' ? 'selected' : '' }}>Todos los estados</option>
-                    <option value="pendiente" {{ filtros.estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                    <option value="aprobada" {{ filtros.estado == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
-                    <option value="rechazada" {{ filtros.estado == 'rechazada' ? 'selected' : '' }}>Rechazada</option>
-                </select>
-            </div>
-            <div class="col-md-2">
+{# Vista toggle #}
+<div class="flex gap-2 mb-4">
+    <button id="btnTabla" onclick="setVista('tabla')"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-blue-600 bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors">
+        <i class="ti ti-list"></i>Tabla
+    </button>
+    <button id="btnCalendario" onclick="setVista('calendario')"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+        <i class="ti ti-calendar"></i>Calendario
+    </button>
+</div>
+
+<div id="vistaTabla">
+    {# Filtros #}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-4">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2"><i class="ti ti-filter text-gray-400"></i>Filtros</h3>
+        </div>
+        <div class="p-5">
+            <form method="get" class="flex flex-wrap items-end gap-3">
+                <div class="min-w-36">
+                    <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                           name="empleadoId" value="{{ filtroEmpleado }}" placeholder="Filtrar por empleado">
+                </div>
+                <div class="min-w-40">
+                    <select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" name="estado">
+                        <option value="" {{ filtros.estado == '' ? 'selected' : '' }}>Todos los estados</option>
+                        <option value="pendiente" {{ filtros.estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                        <option value="aprobada" {{ filtros.estado == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
+                        <option value="rechazada" {{ filtros.estado == 'rechazada' ? 'selected' : '' }}>Rechazada</option>
+                    </select>
+                </div>
                 {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
-            </div>
-            <input type="hidden" name="pagina" value="1">
-            <div class="col-md-3 d-flex gap-2">
-                <button class="btn btn-primary w-100"><i class="ti ti-search me-1"></i>Filtrar</button>
-                <a class="btn btn-outline-secondary" href="{{ path('web_ausencias_index') }}"><i class="ti ti-x"></i></a>
-            </div>
-        </form>
+                <input type="hidden" name="pagina" value="1">
+                <button class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                    <i class="ti ti-search"></i>Filtrar
+                </button>
+                <a href="{{ path('web_ausencias_index') }}"
+                   class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                    <i class="ti ti-x"></i>Limpiar
+                </a>
+            </form>
+        </div>
+    </div>
+
+    {# Tabla #}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900">Solicitudes registradas</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Empleado</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Periodo</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                {% for item in items %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-5 py-3 font-medium text-gray-900">
+                            {{ item.empleadoNombre }}
+                            {% if item.empleadoCodigo %}
+                                <span class="ml-1.5 font-mono text-xs text-gray-400">({{ item.empleadoCodigo }})</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-5 py-3">
+                            <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">{{ item.tipo }}</span>
+                        </td>
+                        <td class="px-5 py-3 text-gray-500 text-xs font-mono">
+                            {{ item.fechaInicio|date('d/m/Y') }} → {{ item.fechaFin|date('d/m/Y') }}
+                        </td>
+                        <td class="px-5 py-3">
+                            {% if item.estado == 'aprobada' %}
+                                <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="ti ti-circle-check mr-1"></i>Aprobada
+                                </span>
+                            {% elseif item.estado == 'rechazada' %}
+                                <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="ti ti-circle-x mr-1"></i>Rechazada
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="ti ti-clock mr-1"></i>Pendiente
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-5 py-3 text-right whitespace-nowrap">
+                            {% if is_granted('ROLE_SUPERVISOR') and item.estado == 'pendiente' %}
+                                <form method="post" action="{{ path('web_ausencias_aprobar', {id: item.id}) }}" class="inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('ausencia_aprobar_' ~ item.id) }}">
+                                    <button class="inline-flex items-center gap-1 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 transition-colors">
+                                        <i class="ti ti-check"></i>Aprobar
+                                    </button>
+                                </form>
+                                <form method="post" action="{{ path('web_ausencias_rechazar', {id: item.id}) }}" class="inline ml-1">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('ausencia_rechazar_' ~ item.id) }}">
+                                    <button class="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 transition-colors">
+                                        <i class="ti ti-x"></i>Rechazar
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="text-gray-300">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="px-5 py-12 text-center text-gray-400">
+                            <i class="ti ti-beach text-3xl block mb-2"></i>Sin solicitudes de ausencia.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="px-5 py-3 border-t border-gray-100 flex justify-end">
+            {% include 'web/_paginacion.html.twig' with {ruta: 'web_ausencias_index', query: {empleadoId: filtroEmpleado, estado: filtros.estado, tamano: filtros.tamano}, paginacion: paginacion} %}
+        </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title mb-0">Solicitudes registradas</h3>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-vcenter card-table">
-            <thead>
-                <tr>
-                    <th>Empleado</th>
-                    <th>Tipo</th>
-                    <th>Periodo</th>
-                    <th>Estado</th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for item in items %}
-                <tr>
-                    <td class="fw-medium">{{ item.empleadoId }}</td>
-                    <td>
-                        <span class="badge bg-azure-lt text-azure">{{ item.tipo }}</span>
-                    </td>
-                    <td class="text-secondary">
-                        <i class="ti ti-calendar me-1"></i>{{ item.fechaInicio }}
-                        <span class="mx-1">→</span>
-                        {{ item.fechaFin }}
-                    </td>
-                    <td>
-                        {% if item.estado == 'aprobada' %}
-                            <span class="badge bg-success-lt text-success"><i class="ti ti-circle-check me-1"></i>Aprobada</span>
-                        {% elseif item.estado == 'rechazada' %}
-                            <span class="badge bg-danger-lt text-danger"><i class="ti ti-circle-x me-1"></i>Rechazada</span>
-                        {% else %}
-                            <span class="badge bg-warning-lt text-warning"><i class="ti ti-clock me-1"></i>Pendiente</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-end" style="white-space:nowrap;">
-                        {% if is_granted('ROLE_SUPERVISOR') and item.estado == 'pendiente' %}
-                            <form method="post" action="{{ path('web_ausencias_aprobar', {id: item.id}) }}" class="d-inline">
-                                <input type="hidden" name="_token" value="{{ csrf_token('ausencia_aprobar_' ~ item.id) }}">
-                                <button class="btn btn-sm btn-success">
-                                    <i class="ti ti-check me-1"></i>Aprobar
-                                </button>
-                            </form>
-                            <form method="post" action="{{ path('web_ausencias_rechazar', {id: item.id}) }}" class="d-inline ms-1">
-                                <input type="hidden" name="_token" value="{{ csrf_token('ausencia_rechazar_' ~ item.id) }}">
-                                <button class="btn btn-sm btn-danger">
-                                    <i class="ti ti-x me-1"></i>Rechazar
-                                </button>
-                            </form>
-                        {% else %}
-                            <span class="text-secondary">—</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="5" class="text-center text-secondary py-4">
-                        <i class="ti ti-beach fs-2 d-block mb-2"></i>Sin solicitudes de ausencia.
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="card-footer d-flex justify-content-end">
-        {% include 'web/_paginacion.html.twig' with {ruta: 'web_ausencias_index', query: {empleadoId: filtroEmpleado, estado: filtros.estado, tamano: filtros.tamano}, paginacion: paginacion} %}
+<div id="vistaCalendario" style="display:none;">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <div id="ausenciasCalendar" style="min-height:560px;"></div>
     </div>
 </div>
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script>
+{% set events = [] %}
+{% for item in calendarItems %}
+    {% set events = events|merge([{
+        title: item.empleadoNombre ~ ' · ' ~ item.tipo,
+        start: item.fechaInicio,
+        end: item.fechaFin,
+        color: item.estado == 'aprobada' ? '#16a34a' : (item.estado == 'rechazada' ? '#dc2626' : '#d97706')
+    }]) %}
+{% endfor %}
+const ausenciaEvents = {{ events|json_encode|raw }};
+
+document.addEventListener('DOMContentLoaded', function () {
+    const cal = new FullCalendar.Calendar(document.getElementById('ausenciasCalendar'), {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        events: ausenciaEvents,
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listWeek' },
+        eventDisplay: 'block',
+        height: 'auto',
+    });
+    cal.render();
+});
+
+function setVista(v) {
+    const esTabla = v === 'tabla';
+    document.getElementById('vistaTabla').style.display = esTabla ? '' : 'none';
+    document.getElementById('vistaCalendario').style.display = esTabla ? 'none' : '';
+    const btnTabla = document.getElementById('btnTabla');
+    const btnCal = document.getElementById('btnCalendario');
+    const activeClasses = ['bg-blue-600', 'border-blue-600', 'text-white'];
+    const inactiveClasses = ['bg-white', 'border-gray-300', 'text-gray-600', 'hover:bg-gray-50'];
+    if (esTabla) {
+        btnTabla.classList.add(...activeClasses); btnTabla.classList.remove(...inactiveClasses);
+        btnCal.classList.remove(...activeClasses); btnCal.classList.add(...inactiveClasses);
+    } else {
+        btnCal.classList.add(...activeClasses); btnCal.classList.remove(...inactiveClasses);
+        btnTabla.classList.remove(...activeClasses); btnTabla.classList.add(...inactiveClasses);
+    }
+}
+</script>
+{% endblock %}
 {% endblock %}

@@ -3,48 +3,48 @@
 {% block title %}{{ modo == 'crear' ? 'Nuevo horario' : 'Editar horario' }} — Fichajes{% endblock %}
 
 {% block body %}
-<div class="page-header d-print-none pt-3 pb-2">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <a class="btn btn-outline-secondary btn-sm" href="{{ path('web_horarios_index') }}">
-                <i class="ti ti-arrow-left me-1"></i>Volver
-            </a>
-        </div>
-        <div class="col">
-            <div class="page-pretitle text-secondary">Horarios</div>
-            <h2 class="page-title">{{ modo == 'crear' ? 'Nuevo horario' : 'Editar horario' }}</h2>
-        </div>
+<div class="mb-6">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+        <a href="{{ path('app_dashboard') }}" class="hover:text-gray-600 transition-colors">Inicio</a>
+        <i class="ti ti-chevron-right text-gray-300" style="font-size:.65rem;"></i>
+        <a href="{{ path('web_horarios_index') }}" class="hover:text-gray-600 transition-colors">Horarios</a>
+        <i class="ti ti-chevron-right text-gray-300" style="font-size:.65rem;"></i>
+        <span>{{ modo == 'crear' ? 'Nuevo' : 'Editar' }}</span>
+    </p>
+    <div class="flex items-center gap-3">
+        <a href="{{ path('web_horarios_index') }}"
+           class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+            <i class="ti ti-arrow-left"></i>Volver
+        </a>
+        <h1 class="text-2xl font-bold text-gray-900">{{ modo == 'crear' ? 'Nuevo horario' : 'Editar horario' }}</h1>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <form method="post"
-              action="{{ modo == 'crear' ? path('web_horarios_crear') : path('web_horarios_editar', {id: horario.id}) }}"
-              class="row g-3">
-            <input type="hidden" name="_token"
-                   value="{{ csrf_token(modo == 'crear' ? 'horario_crear' : 'horario_editar_' ~ horario.id) }}">
-
-            <div class="col-md-4">
-                <label class="form-label">Nombre del horario</label>
-                <input class="form-control" name="nombre"
-                       value="{{ horario ? horario.nombre : '' }}"
-                       placeholder="Ej. Turno mañana L-V" required>
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <form method="post"
+          action="{{ modo == 'crear' ? path('web_horarios_crear') : path('web_horarios_editar', {id: horario.id}) }}"
+          class="space-y-5">
+        <input type="hidden" name="_token" value="{{ csrf_token(modo == 'crear' ? 'horario_crear' : 'horario_editar_' ~ horario.id) }}">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre del horario</label>
+                <input class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                       name="nombre" value="{{ horario ? horario.nombre : '' }}" placeholder="Ej. Turno mañana L-V" required>
             </div>
-            <div class="col-md-8">
-                <label class="form-label">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">
                     Tramos
-                    <span class="text-secondary ms-1 small">(una línea por tramo: día, HH:MM, HH:MM)</span>
+                    <span class="text-xs text-gray-400 font-normal ml-1">una línea por tramo: día, HH:MM, HH:MM</span>
                 </label>
-                <textarea class="form-control font-monospace" name="tramos" rows="5"
-                          placeholder="lunes, 09:00, 17:00&#10;martes, 09:00, 17:00&#10;..." required>{% if horario %}{{ horario.tramos|replace({'[':'',']':'','{':'','}':'','"':'','dia:':'','inicio:':'','fin:':''}) }}{% endif %}</textarea>
+                <textarea class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition resize-y"
+                          name="tramos" rows="5" placeholder="lunes, 09:00, 17:00&#10;martes, 09:00, 17:00&#10;..." required>{% if horario %}{{ horario.tramos|replace({'[':'',']':'','{':'','}':'','"':'','dia:':'','inicio:':'','fin:':''}) }}{% endif %}</textarea>
             </div>
-            <div class="col-12 pt-2">
-                <button class="btn btn-primary" type="submit">
-                    <i class="ti ti-device-floppy me-1"></i>Guardar
-                </button>
-            </div>
-        </form>
-    </div>
+        </div>
+        <div>
+            <button class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                <i class="ti ti-device-floppy"></i>Guardar
+            </button>
+        </div>
+    </form>
 </div>
 {% endblock %}

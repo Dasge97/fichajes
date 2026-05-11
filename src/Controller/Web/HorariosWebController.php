@@ -44,18 +44,39 @@ class HorariosWebController extends AbstractController
         $offsetHor = ($pagina - 1) * $tamano;
         $horarios = $this->connection->fetchAllAssociative('SELECT id, nombre, tramos'.$sqlHorariosBase.' ORDER BY nombre LIMIT '.$tamano.' OFFSET '.$offsetHor, $paramsHor);
 
-        $sqlAsigBase = ' FROM asignacion_horario_empleado WHERE tenantId = :tenant';
+        $sqlAsigBase = ' FROM asignacion_horario_empleado a
+            LEFT JOIN trabajador t ON t.id = a.empleadoId AND t.tenantId = a.tenantId
+            LEFT JOIN horario_trabajo h ON h.id = a.horarioId AND h.tenantId = a.tenantId
+            WHERE a.tenantId = :tenant';
         $paramsAsig = ['tenant' => $tenantId];
         if ($qAsig !== '') {
-            $sqlAsigBase .= ' AND (empleadoId LIKE :qAsig OR horarioId LIKE :qAsig)';
+            $sqlAsigBase .= ' AND (t.nombre LIKE :qAsig OR t.trabajadorId LIKE :qAsig OR h.nombre LIKE :qAsig)';
             $paramsAsig['qAsig'] = '%'.$qAsig.'%';
         }
         $totalAsig = (int) $this->connection->fetchOne('SELECT COUNT(*)'.$sqlAsigBase, $paramsAsig);
         $totalPaginasAsig = max(1, (int) ceil($totalAsig / $tamanoAsig));
         $paginaAsig = min($paginaAsig, $totalPaginasAsig);
         $offsetAsig = ($paginaAsig - 1) * $tamanoAsig;
-        $asignaciones = $this->connection->fetchAllAssociative('SELECT empleadoId, horarioId, vigenteDesde, vigenteHasta'.$sqlAsigBase.' ORDER BY vigenteDesde DESC LIMIT '.$tamanoAsig.' OFFSET '.$offsetAsig, $paramsAsig);
+        $asignaciones = $this->connection->fetchAllAssociative(
+            'SELECT a.empleadoId, a.horarioId, a.vigenteDesde, a.vigenteHasta,
+                    COALESCE(t.nombre, a.empleadoId) AS empleadoNombre,
+                    t.trabajadorId AS empleadoCodigo,
+                    COALESCE(h.nombre, a.horarioId) AS horarioNombre'
+            .$sqlAsigBase.' ORDER BY a.vigenteDesde DESC LIMIT '.$tamanoAsig.' OFFSET '.$offsetAsig,
+            $paramsAsig
+        );
         $trabajadores = $this->connection->fetchAllAssociative('SELECT trabajadorId, nombre FROM trabajador WHERE tenantId = :tenant AND activo = 1 ORDER BY trabajadorId', ['tenant' => $tenantId]);
+        $calendarAsignaciones = $this->connection->fetchAllAssociative(
+            'SELECT a.empleadoId, a.horarioId, a.vigenteDesde, a.vigenteHasta,
+                    COALESCE(t.nombre, a.empleadoId) AS empleadoNombre,
+                    t.trabajadorId AS empleadoCodigo,
+                    COALESCE(h.nombre, a.horarioId) AS horarioNombre
+             FROM asignacion_horario_empleado a
+             LEFT JOIN trabajador t ON t.id = a.empleadoId AND t.tenantId = a.tenantId
+             LEFT JOIN horario_trabajo h ON h.id = a.horarioId AND h.tenantId = a.tenantId
+             WHERE a.tenantId = :tenant ORDER BY a.vigenteDesde DESC LIMIT 200',
+            ['tenant' => $tenantId]
+        );
 
         return $this->render('web/horarios/index.html.twig', [
             'horarios' => $horarios,
@@ -65,6 +86,7 @@ class HorariosWebController extends AbstractController
             'paginacion' => ['total' => $totalHorarios, 'pagina' => $pagina, 'totalPaginas' => $totalPaginasHorarios],
             'filtrosAsig' => ['qAsig' => $qAsig, 'tamanoAsig' => $tamanoAsig],
             'paginacionAsig' => ['total' => $totalAsig, 'paginaAsig' => $paginaAsig, 'totalPaginasAsig' => $totalPaginasAsig],
+            'calendarAsignaciones' => $calendarAsignaciones,
         ]);
     }
 

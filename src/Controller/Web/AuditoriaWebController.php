@@ -45,7 +45,12 @@ class AuditoriaWebController extends AbstractController
         $pagina = min($pagina, $totalPaginas);
         $offset = ($pagina - 1) * $tamano;
 
-        $items = $this->connection->fetchAllAssociative('SELECT accion, antes, despues, creadoEn'.$sqlBase.' ORDER BY creadoEn DESC LIMIT '.$tamano.' OFFSET '.$offset, $params);
+        $rows = $this->connection->fetchAllAssociative('SELECT accion, antes, despues, creadoEn'.$sqlBase.' ORDER BY creadoEn DESC LIMIT '.$tamano.' OFFSET '.$offset, $params);
+        $items = array_map(static function (array $row): array {
+            $row['antes']   = isset($row['antes'])   ? json_decode($row['antes'],   true) : null;
+            $row['despues'] = isset($row['despues'])  ? json_decode($row['despues'], true) : null;
+            return $row;
+        }, $rows);
 
         return $this->render('web/auditoria/index.html.twig', [
             'items' => $items,
