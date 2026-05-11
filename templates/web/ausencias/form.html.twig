@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva ausencia{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Solicitar ausencia</h1>
+        <a class="btn btn-outline-secondary" href="{{ path('web_ausencias_index') }}">Volver</a>
+    </div>
+    <section class="card"><div class="card-body">
+        <form method="post" action="{{ path('web_ausencias_solicitar') }}" class="row g-2">
+            <input type="hidden" name="_token" value="{{ csrf_token('ausencia_solicitar') }}">
+            <div class="col-md-3">
+                <select class="form-select" name="trabajadorId" required>
+                    <option value="">Trabajador</option>
+                    {% for trabajador in trabajadores %}<option value="{{ trabajador.trabajadorId }}">{{ trabajador.trabajadorId }} - {{ trabajador.nombre }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3"><input class="form-control" name="tipo" placeholder="vacaciones/permiso/baja" required></div>
+            <div class="col-md-2"><input class="form-control" type="date" name="fechaInicio" required></div>
+            <div class="col-md-2"><input class="form-control" type="date" name="fechaFin" required></div>
+            <div class="col-md-2"><button class="btn btn-primary w-100">Guardar</button></div>
+        </form>
+    </div></section>
+{% endblock %}

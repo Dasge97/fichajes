@@ -1,0 +1,11 @@
+<nav aria-label="Paginacion" class="mt-2">
+    <ul class="pagination pagination-sm mb-0">
+        <li class="page-item {{ paginacion.pagina <= 1 ? 'disabled' : '' }}">
+            <a class="page-link" href="{{ path(ruta, query|merge({pagina: paginacion.pagina - 1})) }}">Anterior</a>
+        </li>
+        <li class="page-item disabled"><span class="page-link">Pagina {{ paginacion.pagina }} / {{ paginacion.totalPaginas }}</span></li>
+        <li class="page-item {{ paginacion.pagina >= paginacion.totalPaginas ? 'disabled' : '' }}">
+            <a class="page-link" href="{{ path(ruta, query|merge({pagina: paginacion.pagina + 1})) }}">Siguiente</a>
+        </li>
+    </ul>
+</nav>

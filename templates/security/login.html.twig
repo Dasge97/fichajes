@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Acceso{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="h4 mb-3">Iniciar sesion</h1>
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error.messageKey }}</div>
+                    {% endif %}
+                    <form method="post" class="vstack gap-3">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        <div>
+                            <label class="form-label">Email</label>
+                            <input class="form-control" type="email" name="_username" value="{{ ultimo_usuario }}" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Password</label>
+                            <input class="form-control" type="password" name="_password" required>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Entrar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

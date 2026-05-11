@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/bootstrap.php" colors="true">
+  <php>
+    <env name="APP_ENV" value="test"/>
+    <env name="KERNEL_CLASS" value="App\Kernel"/>
+    <env name="HERRAMIENTA_FICHAJE_LIMITE_INTENTOS" value="3"/>
+    <env name="HERRAMIENTA_FICHAJE_VENTANA_SEGUNDOS" value="900"/>
+    <env name="HERRAMIENTA_FICHAJE_BLOQUEO_SEGUNDOS" value="900"/>
+    <env name="HERRAMIENTA_FICHAJE_TIMEOUT_INACTIVIDAD_SEGUNDOS" value="1"/>
+  </php>
+  <testsuites>
+    <testsuite name="app">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

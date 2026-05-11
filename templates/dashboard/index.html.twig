@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panel operativo{% endblock %}
+
+{% block body %}
+    <h1 class="h3 mb-3">Panel operativo</h1>
+    <p class="text-muted">Resumen diario, estados y agenda de los proximos dias.</p>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-2"><div class="card"><div class="card-body"><div class="small text-muted">Fichajes hoy</div><div class="h4 mb-0">{{ kpis.fichajesHoy }}</div></div></div></div>
+        <div class="col-6 col-xl-2"><div class="card"><div class="card-body"><div class="small text-muted">Fuera horario</div><div class="h4 mb-0 text-warning">{{ kpis.fueraHorarioHoy }}</div></div></div></div>
+        <div class="col-6 col-xl-2"><div class="card"><div class="card-body"><div class="small text-muted">Ausencias activas</div><div class="h4 mb-0">{{ kpis.ausenciasActivas }}</div></div></div></div>
+        <div class="col-6 col-xl-3"><div class="card"><div class="card-body"><div class="small text-muted">Correcciones pendientes</div><div class="h4 mb-0 text-danger">{{ kpis.correccionesPendientes }}</div></div></div></div>
+        <div class="col-12 col-xl-3"><div class="card"><div class="card-body"><div class="small text-muted">Horarios asignados vigentes</div><div class="h4 mb-0">{{ kpis.horariosAsignados }}</div></div></div></div>
+        <div class="col-12 col-xl-3"><div class="card"><div class="card-body"><div class="small text-muted">Trabajadores activos</div><div class="h4 mb-0">{{ kpis.trabajadoresActivos }}</div></div></div></div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-lg-6">
+            <div class="card h-100"><div class="card-body">
+                <h2 class="h6 mb-3">Actividad reciente</h2>
+                <ul class="list-group list-group-flush">
+                    {% for item in actividadReciente %}
+                        <li class="list-group-item d-flex justify-content-between px-0">
+                            <span><span class="badge text-bg-dark me-2">{{ item.accion }}</span></span>
+                            <small class="text-muted">{{ item.creadoEn }}</small>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item px-0 text-muted">Sin actividad reciente.</li>
+                    {% endfor %}
+                </ul>
+            </div></div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100"><div class="card-body">
+                <h2 class="h6 mb-3">Agenda proxima (14 dias)</h2>
+                <ul class="list-group list-group-flush">
+                    {% for item in agendaProxima %}
+                        <li class="list-group-item px-0 d-flex justify-content-between">
+                            <span>{{ item.empleadoId }} <span class="badge text-bg-secondary ms-1">{{ item.tipo }}</span></span>
+                            <small class="text-muted">{{ item.inicio }} - {{ item.fin }}</small>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item px-0 text-muted">Sin eventos futuros.</li>
+                    {% endfor %}
+                </ul>
+            </div></div>
+        </div>
+    </div>
+{% endblock %}

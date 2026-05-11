@@ -1,0 +1,42 @@
+doctrine:
+  dbal:
+    url: '%env(resolve:DATABASE_URL)%'
+  orm:
+    auto_generate_proxy_classes: true
+    enable_lazy_ghost_objects: true
+    mappings:
+      Fichajes:
+        is_bundle: false
+        type: attribute
+        dir: '%kernel.project_dir%/src/Modulo/Fichajes/Domain/Entity'
+        prefix: 'App\Modulo\Fichajes\Domain\Entity'
+      Horarios:
+        is_bundle: false
+        type: attribute
+        dir: '%kernel.project_dir%/src/Modulo/Horarios/Domain/Entity'
+        prefix: 'App\Modulo\Horarios\Domain\Entity'
+      Ausencias:
+        is_bundle: false
+        type: attribute
+        dir: '%kernel.project_dir%/src/Modulo/Ausencias/Domain/Entity'
+        prefix: 'App\Modulo\Ausencias\Domain\Entity'
+      Acceso:
+        is_bundle: false
+        type: attribute
+        dir: '%kernel.project_dir%/src/Modulo/Acceso/Domain/Entity'
+        prefix: 'App\Modulo\Acceso\Domain\Entity'
+      Correcciones:
+        is_bundle: false
+        type: attribute
+        dir: '%kernel.project_dir%/src/Modulo/Correcciones/Domain/Entity'
+        prefix: 'App\Modulo\Correcciones\Domain\Entity'
+      Auditoria:
+        is_bundle: false
+        type: attribute
+        dir: '%kernel.project_dir%/src/Modulo/Auditoria/Domain/Entity'
+        prefix: 'App\Modulo\Auditoria\Domain\Entity'
+      Trabajadores:
+        is_bundle: false
+        type: attribute
+        dir: '%kernel.project_dir%/src/Modulo/Trabajadores/Domain/Entity'
+        prefix: 'App\Modulo\Trabajadores\Domain\Entity'

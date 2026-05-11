@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Herramienta de fichaje{% endblock %}
+
+{% block body %}
+    <h1 class="h4 mb-3">Herramienta de fichaje</h1>
+
+    {% if trabajador is null %}
+        <section class="card">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Identificacion del trabajador</h2>
+                <form method="post" action="{{ path('web_herramienta_fichaje_iniciar') }}" class="row g-2">
+                    <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_iniciar') }}">
+                    <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
+                    <div class="col-md-4"><input class="form-control" name="trabajadorId" placeholder="Codigo trabajador" required></div>
+                    <div class="col-md-4"><input class="form-control" type="password" name="claveAcceso" placeholder="Clave de fichaje" required></div>
+                    <div class="col-md-4"><button class="btn btn-primary w-100">Iniciar fichaje</button></div>
+                </form>
+            </div>
+        </section>
+    {% else %}
+        <section class="card mb-3">
+            <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <h2 class="h6 mb-1">{{ trabajador.trabajadorId }} - {{ trabajador.nombre }}</h2>
+                    <span class="badge text-bg-secondary">Estado: {{ estado|replace({'_': ' '}) }}</span>
+                </div>
+                <form method="post" action="{{ path('web_herramienta_fichaje_cerrar') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_cerrar') }}">
+                    <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
+                    <button class="btn btn-outline-secondary">Cambiar trabajador</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Acciones disponibles</h2>
+                <form method="post" action="{{ path('web_herramienta_fichaje_accion') }}" class="d-flex flex-wrap gap-2">
+                    <input type="hidden" name="_token" value="{{ csrf_token('herramienta_fichaje_accion') }}">
+                    <input type="hidden" name="modo" value="{{ modo|default('normal') }}">
+                    {% if estado == 'en_jornada' %}
+                        <button class="btn btn-warning" name="accion" value="pausa">Pausar</button>
+                        <button class="btn btn-danger" name="accion" value="finalizar">Finalizar fichaje</button>
+                    {% elseif estado == 'en_pausa' %}
+                        <button class="btn btn-success" name="accion" value="reanudar">Reanudar</button>
+                        <button class="btn btn-danger" name="accion" value="finalizar">Finalizar fichaje</button>
+                    {% elseif estado == 'finalizada' %}
+                        <button class="btn btn-primary" name="accion" value="iniciar_nuevo">Iniciar nueva jornada</button>
+                    {% else %}
+                        <span class="text-muted">No hay jornada activa para hoy.</span>
+                    {% endif %}
+                </form>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

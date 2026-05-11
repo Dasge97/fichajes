@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva asignacion de horario{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Asignar horario</h1>
+        <a class="btn btn-outline-secondary" href="{{ path('web_horarios_index') }}">Volver</a>
+    </div>
+    <section class="card"><div class="card-body">
+        <form method="post" action="{{ path('web_horarios_asignar') }}" class="row g-2">
+            <input type="hidden" name="_token" value="{{ csrf_token('horario_asignar') }}">
+            <div class="col-md-3">
+                <select class="form-select" name="trabajadorId" required>
+                    <option value="">Trabajador</option>
+                    {% for trabajador in trabajadores %}<option value="{{ trabajador.trabajadorId }}">{{ trabajador.trabajadorId }} - {{ trabajador.nombre }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="horarioId" required>
+                    <option value="">Horario</option>
+                    {% for horario in horarios %}<option value="{{ horario.id }}">{{ horario.nombre }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3"><input class="form-control" type="date" name="vigenteDesde" required></div>
+            <div class="col-md-2"><input class="form-control" type="date" name="vigenteHasta"></div>
+            <div class="col-md-1"><button class="btn btn-primary w-100">OK</button></div>
+        </form>
+    </div></section>
+{% endblock %}

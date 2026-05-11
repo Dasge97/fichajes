@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo fichaje{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Registrar fichaje</h1>
+        <a class="btn btn-outline-secondary" href="{{ path('web_fichajes_index') }}">Volver</a>
+    </div>
+    <section class="card">
+        <div class="card-body">
+            <form method="post" action="{{ path('web_fichajes_registrar') }}" class="row g-2">
+                <input type="hidden" name="_token" value="{{ csrf_token('fichaje_registrar') }}">
+                <div class="col-md-4">
+                    <select class="form-select" name="trabajadorId" required>
+                        <option value="">Trabajador</option>
+                        {% for trabajador in trabajadores %}
+                            <option value="{{ trabajador.trabajadorId }}">{{ trabajador.trabajadorId }} - {{ trabajador.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="tipo" required>
+                        <option value="clock-in">Entrada</option>
+                        <option value="pause-start">Inicio pausa</option>
+                        <option value="pause-end">Fin pausa</option>
+                        <option value="clock-out">Salida</option>
+                    </select>
+                </div>
+                <div class="col-md-3"><input class="form-control" type="datetime-local" name="ocurridoEn" required></div>
+                <div class="col-md-2"><button class="btn btn-primary w-100">Guardar</button></div>
+            </form>
+        </div>
+    </section>
+{% endblock %}

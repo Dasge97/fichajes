@@ -1,0 +1,38 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
+
+# Entornos locales (usa .env.example como plantilla)
+/.env
+/.env.dev
+/.env.test
+
+# Dependencias Node
+/node_modules/
+
+# Artefactos de tests
+/.phpunit.result.cache
+
+# Archivos de planificacion y metadatos de herramientas IA
+/.atl/
+/sdd/
+/openspec/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

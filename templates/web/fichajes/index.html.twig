@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fichajes{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Fichajes</h1>
+        <a class="btn btn-primary" href="{{ path('web_fichajes_nuevo') }}">Añadir fichaje</a>
+    </div>
+
+    <section class="card mb-3"><div class="card-body">
+        <h2 class="h6 mb-3">Filtros</h2>
+        <form method="get" class="row g-2">
+            <div class="col-md-8"><input class="form-control" name="q" value="{{ filtros.q }}" placeholder="Buscar por empleado, tipo o estado"></div>
+            <div class="col-md-2">
+                {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
+            </div>
+            <input type="hidden" name="pagina" value="1">
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-outline-secondary w-100">Filtrar</button>
+                <a class="btn btn-outline-secondary" href="{{ path('web_fichajes_index') }}">Limpiar</a>
+            </div>
+        </form>
+    </div></section>
+
+    <section>
+        <h2 class="h6 mb-2">Historial reciente</h2>
+        <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead><tr><th>Empleado</th><th>Tipo</th><th>Fecha</th><th>Estado</th><th>Motivo</th></tr></thead>
+            <tbody>
+            {% for item in eventos %}
+                <tr>
+                    <td>{{ item.empleadoId }}</td>
+                    <td>{{ item.tipo }}</td>
+                    <td>{{ item.ocurridoEn }}</td>
+                    <td><span class="badge text-bg-{{ item.estadoCumplimiento == 'dentro_horario' ? 'success' : 'warning' }}">{{ item.estadoCumplimiento }}</span></td>
+                    <td>{{ item.motivoDesvio ?: '-' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5" class="text-muted">Sin eventos.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% include 'web/_paginacion.html.twig' with {ruta: 'web_fichajes_index', query: {q: filtros.q, tamano: filtros.tamano}, paginacion: paginacion} %}
+    </section>
+{% endblock %}

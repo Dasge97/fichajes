@@ -1,0 +1,19 @@
+api_v1_horarios:
+  resource: ../../src/Controller/Api/V1/HorariosController.php
+  type: attribute
+
+api_v1_ausencias:
+  resource: ../../src/Controller/Api/V1/AusenciasController.php
+  type: attribute
+
+api_v1_fichajes:
+  resource: ../../src/Controller/Api/V1/FichajesController.php
+  type: attribute
+
+api_v1_correcciones:
+  resource: ../../src/Controller/Api/V1/CorreccionesController.php
+  type: attribute
+
+api_v1_trabajadores:
+  resource: ../../src/Controller/Api/V1/TrabajadoresController.php
+  type: attribute

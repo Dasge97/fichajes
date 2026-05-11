@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva correccion{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Solicitar correccion</h1>
+        <a class="btn btn-outline-secondary" href="{{ path('web_correcciones_index') }}">Volver</a>
+    </div>
+    <section class="card"><div class="card-body">
+        <form method="post" action="{{ path('web_correcciones_crear') }}" class="row g-2">
+            <input type="hidden" name="_token" value="{{ csrf_token('correccion_crear') }}">
+            <div class="col-md-3"><input class="form-control" name="eventoFichajeId" placeholder="Evento fichaje ID" required></div>
+            <div class="col-md-4"><input class="form-control" name="motivo" placeholder="Motivo" required></div>
+            <div class="col-md-3"><input class="form-control" type="datetime-local" name="ocurridoEnCorregido"></div>
+            <div class="col-md-2"><button class="btn btn-primary w-100">Guardar</button></div>
+        </form>
+    </div></section>
+{% endblock %}

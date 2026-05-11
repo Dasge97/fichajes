@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Correcciones{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Correcciones</h1>
+        <a class="btn btn-primary" href="{{ path('web_correcciones_nueva') }}">Añadir corrección</a>
+    </div>
+
+    <section class="card mb-3"><div class="card-body">
+        <h2 class="h6 mb-3">Filtros</h2>
+        <form method="get" class="row g-2">
+            <div class="col-md-5"><input class="form-control" name="q" value="{{ filtros.q }}" placeholder="Buscar por evento o motivo"></div>
+            <div class="col-md-3">
+                <select class="form-select" name="estado">
+                    <option value="" {{ filtros.estado == '' ? 'selected' : '' }}>Todos los estados</option>
+                    <option value="pendiente" {{ filtros.estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="aprobada" {{ filtros.estado == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                {% include 'web/_tamano_select.html.twig' with {nombre: 'tamano', valor: filtros.tamano} %}
+            </div>
+            <input type="hidden" name="pagina" value="1">
+            <div class="col-md-2 d-flex gap-2"><button class="btn btn-outline-secondary w-100">Filtrar</button><a class="btn btn-outline-secondary" href="{{ path('web_correcciones_index') }}">Limpiar</a></div>
+        </form>
+    </div></section>
+
+    <section>
+    <h2 class="h6 mb-2">Solicitudes de correccion</h2>
+    <table class="table table-striped align-middle">
+        <thead><tr><th>Evento</th><th>Estado</th><th>Motivo</th><th>Corregido</th><th class="text-end">Acciones</th></tr></thead>
+        <tbody>
+        {% for item in items %}
+            <tr>
+                <td><code>{{ item.eventoFichajeId }}</code></td>
+                <td><span class="badge text-bg-{{ item.estado == 'aprobada' ? 'success' : 'secondary' }}">{{ item.estado }}</span></td>
+                <td>{{ item.motivo }}</td>
+                <td>{{ item.ocurridoEnCorregido ?: '-' }}</td>
+                <td class="text-end" style="white-space: nowrap; width: 1%;">
+                    {% if is_granted('ROLE_SUPERVISOR') and item.estado == 'pendiente' %}
+                        <form method="post" action="{{ path('web_correcciones_resolver', {id: item.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('correccion_resolver_' ~ item.id) }}">
+                            <button class="btn btn-sm btn-outline-success">Resolver</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5" class="text-muted">Sin correcciones.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% include 'web/_paginacion.html.twig' with {ruta: 'web_correcciones_index', query: {q: filtros.q, estado: filtros.estado, tamano: filtros.tamano}, paginacion: paginacion} %}
+    </section>
+{% endblock %}

@@ -1,0 +1,28 @@
+parameters:
+  herramienta_fichaje_limite_intentos: '%env(int:HERRAMIENTA_FICHAJE_LIMITE_INTENTOS)%'
+  herramienta_fichaje_ventana_segundos: '%env(int:HERRAMIENTA_FICHAJE_VENTANA_SEGUNDOS)%'
+  herramienta_fichaje_bloqueo_segundos: '%env(int:HERRAMIENTA_FICHAJE_BLOQUEO_SEGUNDOS)%'
+  herramienta_fichaje_timeout_inactividad_segundos: '%env(int:HERRAMIENTA_FICHAJE_TIMEOUT_INACTIVIDAD_SEGUNDOS)%'
+  herramienta_fichaje_tenant_kiosko: '%env(string:HERRAMIENTA_FICHAJE_TENANT_KIOSKO)%'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Kernel.php'
+
+  App\Modulo\Fichajes\Application\Servicio\ControlAccesoHerramientaFichaje:
+    arguments:
+      $limiteIntentos: '%herramienta_fichaje_limite_intentos%'
+      $ventanaSegundos: '%herramienta_fichaje_ventana_segundos%'
+      $bloqueoSegundos: '%herramienta_fichaje_bloqueo_segundos%'
+
+  App\Controller\Web\HerramientaFichajeWebController:
+    arguments:
+      $timeoutInactividadSegundos: '%herramienta_fichaje_timeout_inactividad_segundos%'
+      $tenantKioskoPorDefecto: '%herramienta_fichaje_tenant_kiosko%'

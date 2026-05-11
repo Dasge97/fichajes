@@ -1,0 +1,54 @@
+security:
+  password_hashers:
+    Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+  providers:
+    app_user_provider:
+      entity:
+        class: App\Modulo\Acceso\Domain\Entity\Usuario
+        property: email
+
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+
+    main_web:
+      lazy: true
+      provider: app_user_provider
+      user_checker: App\Security\UsuarioWebChecker
+      form_login:
+        login_path: app_login
+        check_path: app_login
+      logout:
+        path: app_logout
+      json_login:
+        check_path: /api/v1/login
+        username_path: email
+        password_path: password
+
+    main_kiosko:
+      pattern: ^/herramienta-fichaje
+      security: false
+
+  access_control:
+    - path: ^/login
+      roles: PUBLIC_ACCESS
+    - path: ^/healthz
+      roles: PUBLIC_ACCESS
+    - path: ^/herramienta-fichaje
+      roles: PUBLIC_ACCESS
+    - path: ^/api/v1/horarios
+      roles: IS_AUTHENTICATED_FULLY
+    - path: ^/api/v1/trabajadores
+      roles: IS_AUTHENTICATED_FULLY
+    - path: ^/api/v1/ausencias
+      roles: IS_AUTHENTICATED_FULLY
+    - path: ^/api/v1/fichajes
+      roles: IS_AUTHENTICATED_FULLY
+    - path: ^/api/v1/correcciones
+      roles: IS_AUTHENTICATED_FULLY
+    - path: ^/api/v1/payroll
+      roles: PUBLIC_ACCESS
+    - path: ^/
+      roles: ROLE_EMPLEADO
